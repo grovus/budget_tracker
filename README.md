@@ -1,4 +1,4 @@
-# Ruby on Rails : Fuel Tracker App
+# Ruby on Rails : Budget Tracker App
 
-Fuel Tracker sample app for the purposes of getting
+Budget Tracker sample app for the purposes of getting
 acquainted with RoR 
