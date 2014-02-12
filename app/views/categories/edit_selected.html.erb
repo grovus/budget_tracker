@@ -1,0 +1,23 @@
+<% provide(:title, "Edit category") %>
+<h1>Update Category</h1>
+
+<div class="row">
+  <div class="span6 offset3">
+
+<%= simple_form_for(@category, html: {class: 'form-vertical'}) do |f| %>
+  <%= f.input :name %>
+
+  <%= f.simple_fields_for :items do |item_fields| %>
+    <%= render 'item_fields', :f => item_fields %>  
+  <% end %>
+      
+  <p>
+    <%= link_to_add_fields "Add Item", f, :items %>     
+  </p>
+
+  <%= f.submit "Save changes", class: "btn btn-large btn-primary" %>
+  <%= link_to "Cancel", :manage, class: "btn btn-large btn-primary" %>
+<% end %>
+
+  </div>
+</div>

@@ -1,4 +1,9 @@
 FuelTracker::Application.routes.draw do
+  resources :items
+  resources :sources
+  resources :categories
+  resources :transactions
+  resources :portfolios
   resources :users
   resources :sessions, only: [:new, :create, :destroy]
   root 'static_pages#home'
@@ -8,6 +13,13 @@ FuelTracker::Application.routes.draw do
   match '/help', to: 'static_pages#help', via: 'get'
   match '/about', to: 'static_pages#about', via: 'get'
   match '/contact', to: 'static_pages#contact', via: 'get'
+  match '/manage', to: 'portfolios#manage', via: 'get'
+  match '/edit_selected', to: 'categories#edit_selected', via: 'post'
+  match '/edit_selected_source', to: 'sources#edit_selected', via: 'post'
+  match '/portfolios/:id/transactions/:year/:month', to: 'portfolios#transactions_monthly', via: 'get'
+  match '/setup', to: 'portfolios#setup', via: 'get'
+  match '/setup_items', to: 'portfolios#setup_items', via: 'get'
+  match '/create_categories', to: 'portfolios#create_categories', via: 'patch'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

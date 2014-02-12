@@ -1,3 +1,14 @@
+<% if signed_in? %>
+
+    <% if current_user.portfolio %>
+	  <%= render 'portfolios/show', portfolio: current_user.portfolio %>
+	<% else %>
+	  <%= link_to "Create Portfolio", new_portfolio_path, class: "btn btn-large btn-primary" %>
+	<% end %>
+	<%= link_to "Sign out", signout_path, method: "delete", class: "btn btn-large btn-danger" %>
+
+<% else %>
+
 <div class="center hero-unit">
 	<h1>Budget Tracker</h1>
 
@@ -5,12 +16,12 @@
 		Where did all me dollaz go yo?
 	</h2>
 
-	<% if signed_in? %>
-		<%= link_to "Sign out", signout_path, method: "delete", class: "btn btn-large btn-danger" %>
-	<% else %>
-		<%= link_to "Sign up now!", signup_path, class: "btn btn-large btn-success" %>
-	<% end %>		
+	<%= link_to "Sign up now!", signup_path, class: "btn btn-large btn-success" %>
 </div>
 
+<% end %>
+
+<div class="separator">
 <%= link_to image_tag("rails.png", alt: "Rails"), 'http://rubyonrails.org/' %>	
+</div>
 

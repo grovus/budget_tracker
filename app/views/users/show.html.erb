@@ -8,4 +8,11 @@
       </h1>
     </section>
   </aside>
+  <% if @user.portfolio.nil? %>
+    <%= link_to "Create Portfolio", new_portfolio_path, class: "btn btn-large btn-success" %>
+  <% else %>
+    <ul class="users">
+      <%=render @user.portfolio %>
+    </ul>
+  <% end %>
 </div>

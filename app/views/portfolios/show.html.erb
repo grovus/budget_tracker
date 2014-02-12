@@ -1,0 +1,87 @@
+<%= render 'show', portfolio: @portfolio %>
+
+<div class="separator"></div>
+
+<h1><%= Date.today.year %></h3>
+
+<div class="separator"></div>
+
+<table class="table table-bordered">
+	<thead>
+		<tr class="header_row">
+
+			<th>Category</th>
+
+			<% @months.each do |month| %>
+			  <th><%= link_to month, "#{params[:id]}/transactions/#{Date.today.year.to_s}/#{Date::ABBR_MONTHNAMES.find_index(month)}" %></th>
+			<% end %>
+			
+			<th>Totals</th>
+		</tr>
+	</thead>
+
+	<tbody>		
+		<% @transactions.keys.sort.each do |category| %>
+
+		<tr><td></td><% @months.each do |month| %><td></td><% end %></tr>
+
+		<tr class="category_row">
+		  <td><b><%= category.name.upcase %><b></td>
+		  <td></td><% @months.each do |month| %><td></td><% end %>
+		</tr>
+
+		<% @transactions[category].keys.sort.each do |item| %>
+		
+		<tr class="item_row">
+	      <td><%= item.name %></td>
+	      <% @months.each do |month| %>
+
+	        <td class="number_cell">
+	        	<% if @transactions[category][item][month].present? %>
+	        	  <%= number_to_currency(@transactions[category][item][month].collect(&:amount).sum) %>
+	        	<% end %>
+	        </td>
+		  <% end %>		
+
+		  <td>
+		  	<b>
+		  	  <%= number_to_currency(@transactions[category][item].values.flatten.collect(&:amount).sum) %>
+		  	<b>
+		   </td>
+		</tr>
+		
+		<% end %>
+
+		<tr class="summary_row">
+			<td><b><%= category.name %> Total<b></td>
+			<% @months.each do |month| %>
+			  <td class="number_cell">
+			  	<b><%= number_to_currency(@totals[category][month]) %></b>
+			  </td>
+			<% end %>
+
+			<td>
+				<b><%= number_to_currency(@totals[category].values.sum) %></b>
+			</td>
+		</tr>
+		
+		<% end %>
+
+		<tr><% @months.each do |month| %><td></td><% end %></tr>
+
+		<tr class="summary_row">
+			<td><b>Monthly Total</b></td>
+			<% @months.each do |month| %>
+			<td>
+				<b><%= number_to_currency(@totals['Monthly Total'][month]) %></b>
+			</td>
+			<% end %>
+
+			<td>
+				<b><%= number_to_currency(@totals['Monthly Total'].values.sum) %></b>
+			</td>
+		</tr>
+
+	</tbody>
+
+</table>

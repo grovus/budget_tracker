@@ -1,0 +1,7 @@
+<li>
+  <%= link_to portfolio.name, portfolio %>
+  <% if current_user?(portfolio.user) %>
+    | <%= link_to "delete", portfolio, method: :delete,
+                                  data: { confirm: "You sure?" } %>
+  <% end %>
+</li>

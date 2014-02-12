@@ -1,0 +1,27 @@
+<h3><%= link_to @portfolio.name, @portfolio %></h3>
+
+<%= form_for(@transaction, html: {class: 'input_fields'}) do |f| %>
+	<%= f.label 'Category' %>
+	<%= f.collection_select(:item_id, @portfolio.items, :id, :full_name) %>
+	<%= link_to "Add New Category", new_category_path, class: "btn btn-medium btn-success" %>
+	<%= f.label 'Source' %>
+	<%= f.collection_select(:source_id, @portfolio.sources, :id, :name) %>
+	<%= link_to "Add New Source", new_source_path, class: "btn btn-medium btn-success" %>
+	<%= f.label :date %>
+	<%= f.date_field(:date, value: Time.now.strftime("%Y-%m-%d")) %>
+	<%= f.label :amount %>
+	<%= f.number_field :amount, step: 0.01 %>
+	<%= f.label :notes %>
+	<%= f.text_field :notes %>
+	<%= f.label :income %>
+	<%= f.check_box :income %>
+	<%= f.label :recurring %>
+	<%= f.check_box :recurring %>
+	<%= f.label :frequency %>	
+	<%= f.collection_select(:frequency, [['Weekly', 1],['Biweekly', 2],['Monthly', 3]], :last, :first) %>	
+	<%= f.label :date_started %>
+	<%= f.date_field(:date_started, value: Time.now.strftime("%Y-%m-%d")) %>
+	<%= f.label :date_completed %>
+	<%= f.date_field(:date_completed, value: Time.now.strftime("%Y-%m-%d")) %>
+	<%= f.submit "Add Transaction", class: "btn btn-large btn-primary" %>
+<% end %>

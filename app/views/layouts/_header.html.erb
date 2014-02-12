@@ -10,11 +10,17 @@
             <li><%= link_to "Users", users_path %></li>
             <li id="fat-menu" class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                Account <b class="caret"></b>
+                Account<b class="caret"></b>
               </a>
               <ul class="dropdown-menu">
                 <li><%= link_to "Profile", current_user %></li>
                 <li><%= link_to "Settings", edit_user_path(current_user) %></li>
+                <% if current_user.portfolio && !current_user.portfolio.name.blank? %>
+                  <li><%= link_to "Manage Portfolio", manage_path %></li>
+                  <li><%= link_to "Add Transactions", portfolio_path(current_user.portfolio) %></li>
+                <% else %>
+                  <li><%= link_to "Create Portfolio", new_portfolio_path %></li>
+                <% end %>
                 <li class="divider"></li>
                 <li>
                   <%= link_to "Sign out", signout_path, method: "delete" %>

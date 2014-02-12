@@ -1,0 +1,33 @@
+<h1><%= @month %> <%= @year %> (<%= pluralize(@transactions.size, 'transaction') %>)</h1>
+
+<%= will_paginate @transactions %>
+
+<table class="table table-bordered">
+
+  <thead>
+    <tr class="header_row">
+      <th><%= sortable "date_transacted", "Date" %></th>
+      <th><%= sortable "item_id", "Category" %></th>
+      <th><%= sortable "source_id", "Vendor" %></th>
+      <th><%= sortable "amount" %></th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @transactions.each do |t| %>
+    <tr class="item_row">
+    	<td><%= t.date_transacted.strftime('%d-%b-%Y') %></td>
+    	<td><%= link_to t.item.name, item_path(t.item_id) %></td>
+    	<td><%= link_to t.source.name, source_path(t.source_id) %></td>
+    	<td class="number_cell"><%= number_to_currency(t.amount) %></td>
+    	<td><%= t.notes %></td>
+    </tr>
+    <% end %>
+  </tbody>
+
+</table>
+
+<%= will_paginate @transactions %>
+
+<%= link_to "Back", portfolio_path(params[:id]), class: "btn btn-large btn-primary" %>

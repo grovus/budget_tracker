@@ -1,0 +1,48 @@
+<h3><%= link_to portfolio.name, portfolio %></h3>
+<% @transaction ||= Transaction.new %>
+<%= simple_form_for(@transaction, html: {class: 'form-horizontal'}) do |f| %>
+<%= render 'shared/error_messages', object: f.object %>
+<table>
+	<tr>
+		<td>
+    <%= f.input :item_id do %>
+      <%= f.collection_select(:item_id, portfolio.items, :id, :full_name) %>
+	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary" %>
+	<% end %>
+	<%= f.input :source_id do %>
+	  <%= f.collection_select(:source_id, portfolio.sources.distinct, :id, :name) %>
+	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary" %>
+	<% end %>
+	<%= f.input :date_transacted, label: 'Date' do %>
+	  <%= f.date_field(:date_transacted, value: Time.now.strftime("%Y-%m-%d")) %>
+	<% end %>
+	<%= f.input :amount, input_html: {step: 0.01} %>
+	<%= f.input :notes %>
+</td>
+<td>
+	<%= f.input :income, wrapper: :inline_checkbox %>
+	<%= f.input :recurring, wrapper: :inline_checkbox %>
+	<div id="optional" style="display:none">
+	  <%= f.input :frequency, collection: [['Weekly', 1],['Biweekly', 2],['Monthly', 3]] %>	
+	  <%= f.input :date_started do %>
+	    <%= f.date_field(:date_started, value: Time.now.strftime("%Y-%m-%d")) %>
+	  <% end %>
+	  <%= f.input :date_completed do %>
+	    <%= f.date_field(:date_completed, value: Time.now.strftime("%Y-%m-%d")) %>
+	  <% end %>
+    </div>
+</td>
+</tr>
+<tr>
+	<td>
+	<%= f.button :submit, class: "btn btn-large btn-primary" %>
+	</td>
+</tr>
+</table>
+<% end %>
+
+<script type="text/javascript">
+  $('#transaction_recurring').click(function() {
+    $('#optional').toggle(this.checked);
+  });
+</script>

@@ -1,0 +1,9 @@
+<%= simple_form_for(current_user.portfolio, 
+      url: {action: "create_categories", controller: "portfolios"},) do |f| %>
+    
+    <%= f.input :categories, as: :check_boxes, collection: @categories %>
+
+  <%= will_paginate @categories %>
+
+  <%= f.button :submit %>
+<% end %>

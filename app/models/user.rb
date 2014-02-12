@@ -1,4 +1,7 @@
 class User < ActiveRecord::Base
+	has_one :portfolio
+	has_many :transactions, through: :portfolio
+	
 	before_save { email.downcase! }
 	before_create :create_remember_token
 
