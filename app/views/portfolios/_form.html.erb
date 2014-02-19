@@ -1,0 +1,25 @@
+<%= simple_form_for(current_user.portfolio, 
+      url: {action: "create_categories", controller: "portfolios"},
+      html: {class: 'form-horizontal'} ) do |f| %>
+
+  <%= f.input :name %>
+
+  <h3>Categories</h3>
+
+  <div id="categories" class="category_fields">
+
+    <%= f.simple_fields_for :categories do |cat| %>
+      <%= render 'category_fields', f: cat %>
+    <% end %>
+  
+    <div class="links">
+      <%= link_to_add_association 'add category', f, :categories, class: 'btn btn-small btn-primary' %>
+    </div>
+
+  </div>
+   
+   <div>  
+  <%= f.submit "Save changes", class: "btn btn-large btn-primary" %>
+</div>
+
+<% end %>

@@ -16,3 +16,5 @@
       
   <%= f.submit "Save changes", class: "btn btn-large btn-primary" %>
 <% end %>
+
+<%= f.input :name, :collection => all_categories, input_html: { multiple: false }, label: 'Category', include_blank: 'Select a category' %>

@@ -6,10 +6,10 @@ class PortfoliosController < ApplicationController
 
   def new
   	@portfolio = Portfolio.new
-  	#@portfolio.name =
-  	PortfoliosHelper::GLOBAL_CATEGORIES.each do |cat| 
+  	view_context.all_categories.each do |cat| 
   	  category = @portfolio.categories.build(name: cat)
-  	  2.times { category.items.build }
+  	  # add an empty subcategory item
+  	  category.items.build
   	end
   end
 
@@ -21,10 +21,12 @@ class PortfoliosController < ApplicationController
   		# need to set up portfolio categories / items
   		# should prepopulate with some defaults
     	
-    	PortfoliosHelper::GLOBAL_CATEGORIES.each do |cat| 
+    	view_context.all_categories(true).each do |cat| 
     	  category = @portfolio.categories.build(name: cat)
-  	      2.times { category.items.build(name: 'my item') }
+    	  # add an empty subcategory
+  	      category.items.build(name: 'My item')
   	    end
+
   	    @portfolio.save!
 
         Rails.logger.debug "******** There are #{@portfolio.categories.size} categories"  	    
@@ -123,14 +125,12 @@ class PortfoliosController < ApplicationController
 
   def create_categories
   	@portfolio = current_user.portfolio
-  	params[:portfolio][:categories].each do |category|
-  		Rails.logger.debug "Category name to create : #{category}"
-  		new_category = @portfolio.categories.build(name: category) unless category.blank?
-  		Rails.logger.debug "Category name created : #{new_category.name}" unless new_category.nil?
-  		Rails.logger.debug "There are #{@portfolio.categories.size} categories"
+  	@portfolio.update_attributes(portfolio_params)
+  	if @portfolio.save!
+  		flash[:success] = 'Portfolio successfully updated'
+  	else
+  		flash[:error] = 'Failed to update portfolio'
   	end
-
-  	@portfolio.save!
 
   	redirect_to setup_items_url
   end
@@ -147,7 +147,7 @@ class PortfoliosController < ApplicationController
   	end
 
     def portfolio_params
-      params.require(:portfolio).permit(:name)
+      params.require(:portfolio).permit(:name, categories_attributes: [:id, :name, :_destroy, items_attributes: [:id, :name, :_destroy] ])
     end
 
     def sort_column

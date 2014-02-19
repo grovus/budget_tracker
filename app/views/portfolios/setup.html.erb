@@ -1,9 +1,4 @@
-<%= simple_form_for(current_user.portfolio, 
-      url: {action: "create_categories", controller: "portfolios"},) do |f| %>
+<% provide(:title, 'Create Budget Portfolio') %>
+<h1>Create Budget Portfolio</h1>
 
-  <%= f.input :name %>
-
-  <%= f.association :categories, :collection => all_categories, input_html: { multiple: false }, label: 'Category', include_blank: 'Select a category' %>
-     
-  <%= f.submit "Save changes", class: "btn btn-large btn-primary" %>
-<% end %>
+<%= render 'form' %>

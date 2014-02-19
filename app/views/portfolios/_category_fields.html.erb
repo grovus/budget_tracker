@@ -1,0 +1,36 @@
+<div class="nested-fields category_fields">
+
+  <%= f.input :name, label: 'Category', hint: 'select existing from list or type new category name' do %>
+      <%= f.input_field :name, :collection => all_categories, input_html: { multiple: false }, label: 'Category', include_blank: 'Select a category' %>
+      or
+      <%= f.input_field :name, label: 'Category' %>
+
+  <%= link_to_remove_association "remove", f %>
+
+  <% end %>
+
+  <div id="items">
+
+    <%= f.simple_fields_for :items do |item| %>
+      <%= render 'item_fields', f: item %>
+    <% end %>
+  
+    <div class="links item_fields">
+      <%= link_to_add_association 'add subcategory', f, :items, class: 'btn btn-small btn-primary' %>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+$( 'select' )
+  .change(function () {
+  	  var id = 'id="'+this.getAttribute("id")+'"';
+  	  var val = $( 'select['+id+']' ).val();
+
+      $( 'input['+id+']' ).val(val);
+
+      //console.log("id : " + id + " val : " + val);
+  });
+</script>
