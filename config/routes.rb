@@ -1,4 +1,5 @@
 FuelTracker::Application.routes.draw do
+  resources :payment_types
   resources :items
   resources :sources
   resources :categories
@@ -17,6 +18,7 @@ FuelTracker::Application.routes.draw do
   match '/edit_selected', to: 'categories#edit_selected', via: 'post'
   match '/edit_selected_source', to: 'sources#edit_selected', via: 'post'
   match '/portfolios/:id/transactions/:year/:month', to: 'portfolios#transactions_monthly', via: 'get'
+  match '/portfolios/:id/transactions/payment_type/:payment_type_id', to: 'portfolios#transactions_by_payment_type', via: 'get'
   match '/setup', to: 'portfolios#setup', via: 'get'
   match '/setup_items', to: 'portfolios#setup_items', via: 'get'
   match '/create_categories', to: 'portfolios#create_categories', via: 'patch'

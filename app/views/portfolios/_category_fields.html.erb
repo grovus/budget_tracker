@@ -22,15 +22,3 @@
   </div>
 
 </div>
-
-<script>
-$( 'select' )
-  .change(function () {
-  	  var id = 'id="'+this.getAttribute("id")+'"';
-  	  var val = $( 'select['+id+']' ).val();
-
-      $( 'input['+id+']' ).val(val);
-
-      //console.log("id : " + id + " val : " + val);
-  });
-</script>

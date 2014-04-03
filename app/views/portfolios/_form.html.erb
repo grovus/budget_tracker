@@ -1,5 +1,7 @@
-<%= simple_form_for(current_user.portfolio, 
-      url: {action: "create_categories", controller: "portfolios"},
+<%= render 'shared/error_messages', object: @portfolio %>
+
+<%= simple_form_for(@portfolio, 
+      #url: {action: "create_categories", controller: "portfolios"},
       html: {class: 'form-horizontal'} ) do |f| %>
 
   <%= f.input :name %>
@@ -18,8 +20,8 @@
 
   </div>
    
-   <div>  
-  <%= f.submit "Save changes", class: "btn btn-large btn-primary" %>
-</div>
+  <div>  
+    <%= f.submit "Create My Portfolio", class: "btn btn-large btn-primary" %>
+  </div>
 
 <% end %>

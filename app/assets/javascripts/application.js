@@ -28,12 +28,33 @@ function add_fields(link, association, content) {
   $(link).before(content.replace(regexp, new_id));
 }
 
-$( "select" )
-  .change(function () {
-    var str = "";
-    $( "select option:selected" ).each(function() {
-      str += $( this ).text() + " ";
-    });
-    $( "input" ).text( str );
-  })
-  .change();
+$(document).ready(function() {
+  $( 'select' ).change(function () {
+    var id = 'id="'+this.getAttribute("id")+'"';
+  	var val = $( 'select['+id+']' ).val();
+
+    $( 'input['+id+']' ).val(val);
+
+    //console.log("id : " + id + " val : " + val);
+  });
+});
+
+$(document).ready(function() {
+    //$('table').accordion({header: '.category_row' });    
+
+    function getChildren($row) {
+        var children = [];
+        while($row.next().hasClass('item_row')) {
+             children.push($row.next());
+             $row = $row.next();
+        }            
+        return children;
+    }        
+
+    $('.category_row').on('click', function() {   
+        var children = getChildren($(this));
+        $.each(children, function() {
+            $(this).fadeToggle();
+        })
+    });  
+});

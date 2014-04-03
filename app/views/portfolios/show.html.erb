@@ -2,7 +2,11 @@
 
 <div class="separator"></div>
 
-<h1><%= Date.today.year %></h3>
+<h1>
+  <%= link_to "<", year: @year-1 %>
+  <%= @year %>
+  <%= link_to ">", year: @year+1 %>
+</h1>
 
 <div class="separator"></div>
 
@@ -13,23 +17,25 @@
 			<th>Category</th>
 
 			<% @months.each do |month| %>
-			  <th><%= link_to month, "#{params[:id]}/transactions/#{Date.today.year.to_s}/#{Date::ABBR_MONTHNAMES.find_index(month)}" %></th>
+			  <th><%= link_to month, "#{params[:id]}/transactions/#{@year}/#{Date::ABBR_MONTHNAMES.find_index(month)}" %></th>
 			<% end %>
 			
 			<th>Totals</th>
+			<th>Average</th>
 		</tr>
 	</thead>
 
 	<tbody>		
 		<% @transactions.keys.sort.each do |category| %>
 
-		<tr><td></td><% @months.each do |month| %><td></td><% end %></tr>
+		<tr><td></td><% @months.each do |month| %><td></td><% end %><td></td></tr>
 
 		<tr class="category_row">
 		  <td><b><%= category.name.upcase %><b></td>
-		  <td></td><% @months.each do |month| %><td></td><% end %>
+		  <td></td><% @months.each do |month| %><td></td><% end %><td></td>
 		</tr>
 
+		<div class="items">
 		<% @transactions[category].keys.sort.each do |item| %>
 		
 		<tr class="item_row">
@@ -47,10 +53,21 @@
 		  	<b>
 		  	  <%= number_to_currency(@transactions[category][item].values.flatten.collect(&:amount).sum) %>
 		  	<b>
-		   </td>
+		  </td>
+
+		  <td>
+		  	<b>
+		  	  <% if @transactions[category][item].values.count > 0 %>
+		  	    <%= number_to_currency(@transactions[category][item].values.flatten.collect(&:amount).sum / @transactions[category][item].values.count) %>
+		  	  <% else %>
+		  	    0
+		  	  <% end %>
+		  	<b>
+		  </td>
 		</tr>
-		
+
 		<% end %>
+		</div>
 
 		<tr class="summary_row">
 			<td><b><%= category.name %> Total<b></td>
@@ -62,6 +79,15 @@
 
 			<td>
 				<b><%= number_to_currency(@totals[category].values.sum) %></b>
+			</td>
+
+			<td>
+				<b><% if @totals[category].values.count > 0 %>
+				     <%= number_to_currency(@totals[category].values.sum / @totals[category].values.count) %>
+				   <% else %>
+				      0
+				   <% end %>
+				</b>				
 			</td>
 		</tr>
 		
@@ -79,6 +105,15 @@
 
 			<td>
 				<b><%= number_to_currency(@totals['Monthly Total'].values.sum) %></b>
+			</td>
+
+			<td>
+				<b><% if @totals['Monthly Total'].values.count > 0 %>
+				     <%= number_to_currency(@totals['Monthly Total'].values.sum / @totals['Monthly Total'].values.count) %>
+				   <% else %>
+				      0
+				   <% end %>
+				</b>
 			</td>
 		</tr>
 

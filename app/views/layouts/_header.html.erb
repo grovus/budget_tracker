@@ -15,7 +15,7 @@
               <ul class="dropdown-menu">
                 <li><%= link_to "Profile", current_user %></li>
                 <li><%= link_to "Settings", edit_user_path(current_user) %></li>
-                <% if current_user.portfolio && !current_user.portfolio.name.blank? %>
+                <% if current_user.portfolio && !current_user.portfolio.id.blank? && !current_user.portfolio.name.blank? %>
                   <li><%= link_to "Manage Portfolio", manage_path %></li>
                   <li><%= link_to "Add Transactions", portfolio_path(current_user.portfolio) %></li>
                 <% else %>

@@ -1,16 +1,14 @@
-<h3><%= link_to portfolio.name, portfolio %></h3>
-<% @transaction ||= Transaction.new %>
-<%= render 'shared/error_messages', object: @transaction %>
-<%= simple_form_for(@transaction, html: {class: 'form-horizontal'}) do |f| %>
+<%= render 'shared/error_messages', object: f.object %>
+
 <table>
 	<tr>
 		<td>
     <%= f.input :item_id do %>
-      <%= f.collection_select(:item_id, portfolio.items, :id, :full_name) %>
+      <%= f.collection_select(:item_id, @portfolio.items, :id, :full_name) %>
 	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary" %>
 	<% end %>
 	<%= f.input :source_id do %>
-	  <%= f.collection_select(:source_id, portfolio.sources.distinct, :id, :name) %>
+	  <%= f.collection_select(:source_id, @portfolio.sources.distinct, :id, :name) %>
 	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary" %>
 	<% end %>
 	<%= f.input :date_transacted, label: 'Date' do %>
@@ -34,13 +32,7 @@
     </div>
 </td>
 </tr>
-<tr>
-	<td>
-	<%= f.button :submit, class: "btn btn-large btn-primary" %>
-	</td>
-</tr>
 </table>
-<% end %>
 
 <script type="text/javascript">
   $('#transaction_recurring').click(function() {

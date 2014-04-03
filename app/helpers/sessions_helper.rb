@@ -38,4 +38,8 @@ module SessionsHelper
 	def store_location
 		session[:return_to] = request.url if request.get?
 	end
+
+	def selected_year
+		cookies.permanent[:selected_year] = Date.today.year
+	end
 end

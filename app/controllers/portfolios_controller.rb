@@ -1,12 +1,13 @@
 class PortfoliosController < ApplicationController
   before_action :store_location, only: [:show, :manage]
-  before_action :check_setup, only: [:show, :manage]
+  before_action :current_year, only: [:show, :transactions_monthly]
+  #before_action :check_setup, only: [:show, :manage]
 
   helper_method :sort_column, :sort_direction
 
   def new
   	@portfolio = Portfolio.new
-  	view_context.all_categories.each do |cat| 
+  	view_context.all_categories(true).each do |cat| 
   	  category = @portfolio.categories.build(name: cat)
   	  # add an empty subcategory item
   	  category.items.build
@@ -14,6 +15,7 @@ class PortfoliosController < ApplicationController
   end
 
   def create
+  	begin
   	@portfolio = current_user.build_portfolio(portfolio_params)
   	if @portfolio.save
   		flash[:success] = 'Well hello!'
@@ -21,18 +23,23 @@ class PortfoliosController < ApplicationController
   		# need to set up portfolio categories / items
   		# should prepopulate with some defaults
     	
-    	view_context.all_categories(true).each do |cat| 
-    	  category = @portfolio.categories.build(name: cat)
+    	#view_context.all_categories(true).each do |cat| 
+    	#  category = @portfolio.categories.build(name: cat)
     	  # add an empty subcategory
-  	      category.items.build(name: 'My item')
-  	    end
+  	    #  category.items.build(name: 'My item')
+  	    #end
 
-  	    @portfolio.save!
+  	    #@portfolio.save!
 
         Rails.logger.debug "******** There are #{@portfolio.categories.size} categories"  	    
 
-  		redirect_to setup_url
+  		redirect_to @portfolio
   	else
+  		render 'new'
+  	end
+  	
+  	rescue ActiveRecord::RecordNotUnique
+  		@portfolio.errors.add(:base, 'Categories and Items must be unique')
   		render 'new'
   	end
   end
@@ -49,6 +56,9 @@ class PortfoliosController < ApplicationController
   end
 
   def show
+  	#@transaction = Transaction.new
+  	#@transaction.date_transacted = Time.now.strftime("%Y-%m-%d")
+
   	@portfolio = Portfolio.find(params[:id])
   	session[:referrer_page] = request.env['HTTP_REFERER']
 
@@ -60,7 +70,7 @@ class PortfoliosController < ApplicationController
     @transactions = {}
 
     #TODO: sort hash keys by some ordinal as selected by user (ie. rank categories/items)
-    grouped_categories = @portfolio.transactions.group_by { |t| t.item.category }
+    grouped_categories = @portfolio.transactions.for_year(@year).group_by { |t| t.item.category }
     
     grouped_categories.keys.sort.each do |category|
     	grouped_items = grouped_categories[category].group_by { |t| t.item }
@@ -76,7 +86,7 @@ class PortfoliosController < ApplicationController
     # now group by date column to calculate aggregates
     @totals = {}
     @totals['Monthly Total'] = {}
-    grouped_by_month = @portfolio.transactions.group_by { |t| t.date_transacted.beginning_of_month }
+    grouped_by_month = @portfolio.transactions.for_year(@year).group_by { |t| t.date_transacted.beginning_of_month }
     grouped_by_month.keys.sort.each do |month|
     	grouped_by_category = grouped_by_month[month].group_by { |t| t.item.category }
     	
@@ -94,11 +104,11 @@ class PortfoliosController < ApplicationController
     
     start_date = DateTime.civil( *params.values_at( :year, :month ).map(&:to_i) )
     @month = Date::ABBR_MONTHNAMES[params[:month].to_i]
-    @year = params[:year]
+    #@year = params[:year]
 
   	@transactions = @portfolio.transactions.where({ date_transacted: start_date..(start_date + 1.month)})
-  										    .paginate(page: params[:page], per_page: 20)
   											.order(sort_column + " " + sort_direction)
+  										    .paginate(page: params[:page], per_page: 25)
   end
 
   def manage
@@ -126,7 +136,7 @@ class PortfoliosController < ApplicationController
   def create_categories
   	@portfolio = current_user.portfolio
   	@portfolio.update_attributes(portfolio_params)
-  	if @portfolio.save!
+  	if @portfolio.save
   		flash[:success] = 'Portfolio successfully updated'
   	else
   		flash[:error] = 'Failed to update portfolio'
@@ -158,4 +168,8 @@ class PortfoliosController < ApplicationController
       %w[asc desc].include?(params[:direction]) ? params[:direction] : "asc"
     end
 
+    def current_year
+      @year = params[:year].nil? ? Date.today.year : params[:year].to_i
+    end
+    
 end

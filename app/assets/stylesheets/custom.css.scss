@@ -230,6 +230,7 @@ input {
 .item_row {
   td {
     text-align: right;
+    padding: 0px 8px; 
   }
 }
 
@@ -252,7 +253,7 @@ table {
 .item_fields {
   padding: 2px; 
   border: 1px dashed #ddd;
-  margin-left: 180px
+  margin-left: 140px
 }
 
 .help-inline,.help-block{font-size:11px;line-height:18px;color:#bfbfbf;}

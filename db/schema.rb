@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140130193949) do
+ActiveRecord::Schema.define(version: 20140226231922) do
 
   create_table "categories", force: true do |t|
     t.string   "name"
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(version: 20140130193949) do
     t.datetime "updated_at"
   end
 
+  add_index "categories", ["name", "portfolio_id"], name: "index_categories_on_name_and_portfolio_id", unique: true
   add_index "categories", ["portfolio_id"], name: "index_categories_on_portfolio_id"
 
   create_table "items", force: true do |t|
@@ -33,6 +34,13 @@ ActiveRecord::Schema.define(version: 20140130193949) do
   end
 
   add_index "items", ["category_id"], name: "index_items_on_category_id"
+  add_index "items", ["name", "category_id"], name: "index_items_on_name_and_category_id", unique: true
+
+  create_table "payment_types", force: true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "portfolios", force: true do |t|
     t.string   "name"
@@ -42,6 +50,7 @@ ActiveRecord::Schema.define(version: 20140130193949) do
     t.datetime "updated_at"
   end
 
+  add_index "portfolios", ["name", "user_id"], name: "index_portfolios_on_name_and_user_id", unique: true
   add_index "portfolios", ["user_id"], name: "index_portfolios_on_user_id"
 
   create_table "sources", force: true do |t|
@@ -51,6 +60,7 @@ ActiveRecord::Schema.define(version: 20140130193949) do
     t.integer  "portfolio_id"
   end
 
+  add_index "sources", ["name", "portfolio_id"], name: "index_sources_on_name_and_portfolio_id", unique: true
   add_index "sources", ["portfolio_id"], name: "index_sources_on_portfolio_id"
 
   create_table "transactions", force: true do |t|
@@ -67,9 +77,12 @@ ActiveRecord::Schema.define(version: 20140130193949) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "notes"
+    t.integer  "payment_type_id"
   end
 
+  add_index "transactions", ["date_transacted", "amount", "item_id", "source_id"], name: "transactions_index", unique: true
   add_index "transactions", ["item_id"], name: "index_transactions_on_item_id"
+  add_index "transactions", ["payment_type_id"], name: "index_transactions_on_payment_type_id"
   add_index "transactions", ["source_id"], name: "index_transactions_on_source_id"
 
   create_table "users", force: true do |t|

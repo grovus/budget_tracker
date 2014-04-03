@@ -1,0 +1,6 @@
+<h1>Update Transaction</h1>
+
+<%= simple_form_for(@transaction, html: {class: 'input_fields'}) do |f| %>
+  <%= render 'fields', f: f %>
+  <%= f.submit "Save Changes", class: "btn btn-large btn-primary" %>
+<% end %>

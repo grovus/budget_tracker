@@ -1,12 +1,4 @@
 <% provide(:title, 'Create Source') %>
 <h1>Create Source</h1>
-<div class="row">
-  <div class="span6 offset3">
-    <%= simple_form_for(@source, html: {class: 'form-vertical'}) do |f| %>
-      <%= render 'shared/error_messages', object: @source %>
-      <%= f.input :name %>
-      <%= f.button :submit, class: "btn btn-large btn-primary" %>
-      <%= link_to "Cancel", :manage, class: "btn btn-large btn-primary" %>      
-    <% end %>
-  </div>
-</div>
+
+<%= render 'form' %>
