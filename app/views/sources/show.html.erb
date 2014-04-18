@@ -1,4 +1,4 @@
-<h1><%= @month %> <%= @year %> (<%= pluralize(@transactions.total_entries, 'transaction') %>)</h1>
+<h1><%= @month %> <%= @year %> (<%= pluralize(@transactions.length, 'transaction') %>)</h1>
 
 <%= will_paginate @transactions %>
 
@@ -34,4 +34,4 @@
 
 <%= will_paginate @transactions %>
 
-<%= link_to "Back", portfolio_path(params[:id]), class: "btn btn-large btn-primary" %>
+<%= link_to "Back", portfolio_path(current_user.portfolio.id), class: "btn btn-large btn-primary" %>

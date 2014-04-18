@@ -1,6 +1,7 @@
 class PortfoliosController < ApplicationController
   before_action :store_location, only: [:show, :manage]
   before_action :current_year, only: [:show, :transactions_monthly]
+  before_action :no_items, only: [:to_csv]
   #before_action :check_setup, only: [:show, :manage]
 
   helper_method :sort_column, :sort_direction
@@ -69,11 +70,17 @@ class PortfoliosController < ApplicationController
     # populate transactions hash
     @transactions = {}
 
+    Rails.logger.debug "-------------------> GROUPING CATEGORIES <--------------------"
+
+    current_transactions = @portfolio.transactions.full_select.for_year(@year)
+
     #TODO: sort hash keys by some ordinal as selected by user (ie. rank categories/items)
-    grouped_categories = @portfolio.transactions.for_year(@year).group_by { |t| t.item.category }
+#    grouped_categories = @portfolio.transactions.full_select.for_year(@year).group_by { |t| t.item.category }
+    grouped_categories = current_transactions.group_by(&:category_name)
     
     grouped_categories.keys.sort.each do |category|
-    	grouped_items = grouped_categories[category].group_by { |t| t.item }
+    	#grouped_items = grouped_categories[category].group_by { |t| t.item }
+      grouped_items = grouped_categories[category].group_by(&:item_name)
   		
   		@transactions[category] = {}
 
@@ -83,12 +90,15 @@ class PortfoliosController < ApplicationController
     	end
     end
 
+    Rails.logger.debug "-------------------> GROUPING BY DATES <--------------------"
+
     # now group by date column to calculate aggregates
     @totals = {}
     @totals['Monthly Total'] = {}
-    grouped_by_month = @portfolio.transactions.for_year(@year).group_by { |t| t.date_transacted.beginning_of_month }
+    grouped_by_month = current_transactions.group_by { |t| t.date_transacted.beginning_of_month }
     grouped_by_month.keys.sort.each do |month|
-    	grouped_by_category = grouped_by_month[month].group_by { |t| t.item.category }
+      #grouped_by_category = grouped_by_month[month].group_by { |t| t.item.category }
+      grouped_by_category = grouped_by_month[month].group_by(&:category_name)
     	
     	grouped_by_category.keys.sort.each do |category|
     		@totals[category] ||= {}
@@ -97,6 +107,55 @@ class PortfoliosController < ApplicationController
     	
     	@totals['Monthly Total'][month.strftime('%b')] = grouped_by_category.values.flatten.collect(&:amount).sum
     end
+
+        Rails.logger.debug "-------------------> FINISHED GROUPING <--------------------"
+
+    respond_to do |format|
+      format.html
+      format.csv { send_data to_csv(@transactions) }
+      format.xls
+    end  
+  end
+
+  def to_csv(transactions = {})
+    CSV.generate do |csv|
+      @months = Date::ABBR_MONTHNAMES.reject { |x| x.nil? }
+      csv << ['Category', 'Item'] + @months + ['Totals', 'Average']
+      overall_totals = ['Overall', '']
+      overall_monthly_totals = {}
+   
+      transactions.keys.sort.each do |category|
+        csv << ['']
+        csv << [category] unless params[:no_items]
+        category_totals = [category + ' Total', '']
+        monthly_totals = {}
+        transactions[category].keys.sort.each do |item|
+          monthly_item_amounts = []
+          @months.each do |month|
+            amount = (transactions[category][item][month].nil? ? 0 : transactions[category][item][month].collect(&:amount).sum.round(2))
+            monthly_item_amounts << amount
+
+            overall_monthly_totals[month] ||= 0
+            monthly_totals[month] ||= 0
+            monthly_totals[month] += amount
+          end
+          sum = monthly_item_amounts.sum
+          monthly_item_amounts << sum.round(2) << (sum / @months.size).round(2)
+          csv << monthly_item_amounts.unshift('', item) unless params[:no_items]
+        end
+        monthly_sum = monthly_totals.values.sum
+        category_totals += monthly_totals.values.map{ |val| val.round(2) } << 
+            monthly_sum.round(2) << (monthly_sum / @months.size).round(2)
+        csv << category_totals
+
+        overall_monthly_totals.merge!(monthly_totals) { |key, v1, v2| v1 + v2 }
+      end
+      overall_sum = overall_monthly_totals.values.sum
+      overall_totals += overall_monthly_totals.values.map{ |val| val.round(2) } <<
+          overall_sum.round(2) << (overall_sum / @months.size).round(2)
+      csv << ['']
+      csv << overall_totals
+    end
   end
 
   def transactions_monthly
@@ -104,9 +163,9 @@ class PortfoliosController < ApplicationController
     
     start_date = DateTime.civil( *params.values_at( :year, :month ).map(&:to_i) )
     @month = Date::ABBR_MONTHNAMES[params[:month].to_i]
-    #@year = params[:year]
 
-  	@transactions = @portfolio.transactions.where({ date_transacted: start_date..(start_date + 1.month)})
+  	@transactions = @portfolio.transactions.includes(:item, :source, :payment_type)
+                      .where({ date_transacted: start_date..(start_date + 1.month - 1.second)})
   											.order(sort_column + " " + sort_direction)
   										    .paginate(page: params[:page], per_page: 25)
   end
@@ -171,5 +230,10 @@ class PortfoliosController < ApplicationController
     def current_year
       @year = params[:year].nil? ? Date.today.year : params[:year].to_i
     end
-    
+
+    def no_items
+      @no_items = params[:no_items]
+      Rails.logger.debug "no items? #{@no_items}"
+    end
+
 end

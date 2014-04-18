@@ -1,18 +1,3 @@
-<%= render 'show', portfolio: @portfolio %>
-
-<div class="separator"></div>
-
-<h1>
-  <%= link_to "<", year: @year-1 %>
-  <%= @year %>
-  <%= link_to ">", year: @year+1 %>
-</h1>
-
-<p><%= link_to "Export CSV", year: @year, format: :csv %></p>
-<p><%= link_to "Export CSV (no items)", year: @year, no_items: true, format: :csv %></p>
-
-<div class="separator"></div>
-
 <table class="table table-bordered">
 	<thead>
 		<tr class="header_row">
@@ -61,7 +46,7 @@
 		  <td>
 		  	<b>
 		  	  <% if @transactions[category][item].values.count > 0 %>
-		  	    <%= number_to_currency(@transactions[category][item].values.flatten.collect(&:amount).sum / @months.count) %>
+		  	    <%= number_to_currency(@transactions[category][item].values.flatten.collect(&:amount).sum / @transactions[category][item].values.count) %>
 		  	  <% else %>
 		  	    0
 		  	  <% end %>
@@ -121,5 +106,4 @@
 		</tr>
 
 	</tbody>
-
 </table>

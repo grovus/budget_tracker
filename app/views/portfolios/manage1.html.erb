@@ -1,0 +1,19 @@
+<h3><%= link_to @portfolio.name, @portfolio %></h3>
+
+<%= simple_form_for(@item, url: {action: "edit_selected", controller: "items"}, html: {class: 'form-horizontal'}) do |f| %>
+   <%= f.input :id do %>
+      <%= f.collection_select(:id, @portfolio.items, :id, :full_name) %>
+	  <%= f.button :submit, 'Edit Item', class: "btn btn-medium btn-primary" %>
+	  <%= link_to "Add New", new_item_path, class: "btn btn-medium btn-primary" %>
+	<% end %>
+<% end %>
+
+
+<%= simple_form_for(@portfolio, html: {class: 'form-horizontal'}) do |f| %>
+  <%= f.simple_fields_for :categories do |project_fields| %>
+    <%= project_fields.input :name, label: 'Category' %>
+    <%= f.simple_fields_for :items do |project_fields| %>
+      <%= project_fields.input :name, label: 'Item' %>
+    <% end %>
+  <% end %>
+<% end %>

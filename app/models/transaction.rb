@@ -12,6 +12,10 @@ class Transaction < ActiveRecord::Base
   validates :source_id, presence: true
   validates :payment_type_id, presence: true
 
+  def self.full_select()
+    select( "transactions.*, items.name as item_name, categories.name as category_name")
+  end
+
   def self.for_year(year)
   	where( "strftime('%Y', date_transacted) = '?'", year )
   end

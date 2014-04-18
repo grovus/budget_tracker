@@ -6,11 +6,11 @@
 	<tr>
 		<td>
     <%= f.input :item_id do %>
-      <%= f.collection_select(:item_id, portfolio.items, :id, :full_name) %>
+      <%= f.collection_select(:item_id, portfolio.items.includes(:category), :id, :full_name) %>
 	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary" %>
 	<% end %>
 	<%= f.input :source_id do %>
-	  <%= f.collection_select(:source_id, portfolio.sources.distinct, :id, :name) %>
+	  <%= f.collection_select(:source_id, portfolio.sources, :id, :name) %>
 	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary" %>
 	<% end %>
 	<%= f.input :date_transacted, label: 'Date' do %>

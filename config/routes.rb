@@ -1,4 +1,4 @@
-FuelTracker::Application.routes.draw do
+BudgetTracker::Application.routes.draw do
   resources :payment_types
   resources :items
   resources :sources

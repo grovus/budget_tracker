@@ -24,5 +24,5 @@ def secure_token
   end
 end
 
-FuelTracker::Application.config.secret_key_base = secure_token
+BudgetTracker::Application.config.secret_key_base = secure_token
 #FuelTracker::Application.config.secret_key_base = '88644e77ac8a274dd2cb66c38b5acb289a83b6a90e1ce33651a45ba890beec20a92487812bb11167dd37ca814ab184f41436a820515fdef6e90233fa28507dd2'

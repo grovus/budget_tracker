@@ -44,9 +44,20 @@ class TransactionsController < ApplicationController
   	end  	
   end
 
+  def index
+    @portfolio = current_user.portfolio
+    @transactions = Transaction.all.limit(1)
+
+    @transactions.each do |t|
+      @transaction = t
+      render 'edit'
+    end
+
+  end
+
   private
 
     def transaction_params
-    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :notes)
+    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes)
     end
 end

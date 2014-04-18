@@ -1,0 +1,4 @@
+  
+  = f.association :tag, :collection => Tag.all(:order => 'name'), :prompt => 'Choose an existing tag'
+  = link_to_add_association 'or create a new tag', f, :tag, :render_options => { :wrapper => 'inline' }
+  = link_to_remove_association "remove tag", f
