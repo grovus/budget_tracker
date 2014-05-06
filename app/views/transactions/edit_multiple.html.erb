@@ -1,0 +1,10 @@
+<h1>Edit Transactions</h1>
+
+<%= form_tag update_multiple_transactions_path, method: :put do %>
+  <% for transaction in @transactions %>
+  	<%= simple_fields_for "transaction_ids[]", transaction do |f| %>
+  		<%= render 'edit_fields', f: f %>
+  	<% end %>
+  <% end %>
+  <p><%= submit_tag "Submit" %></p>
+<% end %>

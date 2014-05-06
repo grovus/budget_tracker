@@ -12,11 +12,14 @@
 	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary" %>
 	<% end %>
 	<%= f.input :date_transacted, label: 'Date' do %>
-	  <%= f.date_field(:date_transacted) %>
+	  <%= f.date_field(:date_transacted, readonly: true) %>
 	<% end %>
 	<%= f.input :amount, input_html: {step: 0.01} %>
 	<%= f.input :payment_type_id, collection: PaymentType.all %>
 	<%= f.input :notes %>
+	<%= f.input :validated, as: :hidden, input_html: { value: 't' } %>	
+	<%= f.input :edit_mode, as: :hidden, input_html: { value: 'f' } %>	
+	<%= f.input :id, as: :hidden %>	
 </td>
 <td>
 	<%= f.input :income, wrapper: :inline_checkbox %>

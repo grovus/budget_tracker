@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140226231922) do
+ActiveRecord::Schema.define(version: 20140502182931) do
 
   create_table "categories", force: true do |t|
     t.string   "name"
@@ -78,12 +78,25 @@ ActiveRecord::Schema.define(version: 20140226231922) do
     t.datetime "updated_at"
     t.string   "notes"
     t.integer  "payment_type_id"
+    t.integer  "import_id"
+    t.boolean  "last_imported"
+    t.string   "context_key"
+    t.boolean  "validated",         default: true
+    t.string   "ref_code"
+    t.integer  "suspected_dupe_id"
+    t.boolean  "edit_mode",         default: false
   end
 
-  add_index "transactions", ["date_transacted", "amount", "item_id", "source_id"], name: "transactions_index", unique: true
+  add_index "transactions", ["context_key"], name: "index_transactions_on_context_key"
+  add_index "transactions", ["date_transacted", "amount", "item_id", "source_id", "payment_type_id", "import_id"], name: "transactions_index", unique: true
+  add_index "transactions", ["edit_mode"], name: "index_transactions_on_edit_mode"
+  add_index "transactions", ["import_id"], name: "index_transactions_on_import_id"
   add_index "transactions", ["item_id"], name: "index_transactions_on_item_id"
   add_index "transactions", ["payment_type_id"], name: "index_transactions_on_payment_type_id"
+  add_index "transactions", ["ref_code"], name: "index_transactions_on_ref_code"
   add_index "transactions", ["source_id"], name: "index_transactions_on_source_id"
+  add_index "transactions", ["suspected_dupe_id"], name: "index_transactions_on_suspected_dupe_id"
+  add_index "transactions", ["validated"], name: "index_transactions_on_validated"
 
   create_table "users", force: true do |t|
     t.string   "name"

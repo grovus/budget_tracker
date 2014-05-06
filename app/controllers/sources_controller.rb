@@ -37,9 +37,11 @@ class SourcesController < ApplicationController
   end
 
   def show
-    @transactions = current_user.portfolio.transactions.where({ source_id: params[:id] })
+    @source_transactions = current_user.portfolio.transactions.where({ source_id: params[:id] })
+    @transactions = @source_transactions
                         .order(sort_column + " " + sort_direction)
                         .paginate(page: params[:page], per_page: 25)
+    @total_spent = @source_transactions.sum(:amount)
   end
 
 

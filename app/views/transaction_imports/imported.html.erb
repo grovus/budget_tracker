@@ -1,0 +1,50 @@
+<h1>Imported <%= pluralize(@transactions.count, 'transaction') %></h1>
+
+<%= form_tag edit_multiple_transactions_path do |f| %>
+
+<table class="table table-bordered">
+
+  <thead>
+    <tr class="header_row">
+      <th>Select All<%= check_box_tag "Select All" %></th>
+      <th><%= sortable "date_transacted", "Date" %></th>
+      <th><%= sortable "item_id", "Category" %></th>
+      <th><%= sortable "source_id", "Vendor" %></th>
+      <th><%= sortable "amount" %></th>
+      <th><%= sortable "payment_type_id", "Payment Type" %></th>
+      <th>Notes</th>
+      <th>Validated</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @transactions.each do |t| %>
+    <tr class="item_row">
+    	<td><%= check_box_tag "transaction_ids[]", t.id, false, class: 'transaction_checkboxes' %></td>
+    	<td><%= link_to t.date_transacted.strftime('%d-%b-%Y'), edit_transaction_path(t) %></td>
+    	<td class="<%= 'invalid_cell' if t.item.name == 'Unknown' %>"><%= t.item.name %></td>
+    	<td><%= t.source.name %></td>
+    	<td class="number_cell"><%= number_to_currency(t.amount) %></td>
+      <td><%= link_to t.payment_type.name, payment_type_path(t.payment_type_id) %></td>
+    	<td><%= t.notes %></td>
+    	<td class="<%= t.validated ? 'valid_cell' : 'invalid_cell' %>"><%= t.validated %></td>
+<!--      <td><%= link_to "edit", edit_transaction_path(t) %> <%= link_to "delete", t, method: :delete, data: { confirm: "You sure?" } %></td>
+-->
+    </tr>
+    <% end %>
+  </tbody>
+
+</table>
+
+<%= label_tag :edit_individual do %>
+	<%= check_box_tag :edit_individual %>
+	Edit Transactions Individually?
+<% end %>
+<%= submit_tag "Edit Checked", disabled: true, class: "btn btn-primary" %>
+<%= submit_tag "Delete Checked", disabled: true, data: { confirm: "You sure?" }, class: "btn btn-primary" %>
+<!--<%= select_tag :field, options_for_select([["All Fields", ""], ["Name", "name"], ["Price", "price"], ["Category", "category_id"], ["Discontinued", "discontinued"]]) %> -->
+
+<% end %>
+
+<%= link_to "Back", portfolio_path(current_user.portfolio), class: "btn btn-large btn-primary" %>
+

@@ -3,7 +3,15 @@ BudgetTracker::Application.routes.draw do
   resources :items
   resources :sources
   resources :categories
-  resources :transactions
+  resources :transactions do
+    collection do 
+      post :edit_multiple
+      put :update_multiple
+      post :edit_individual
+      put :update_individual
+    end
+  end
+  resources :transaction_imports
   resources :portfolios
   resources :users
   resources :sessions, only: [:new, :create, :destroy]

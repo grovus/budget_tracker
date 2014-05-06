@@ -1,0 +1,31 @@
+<%= render 'shared/error_messages', object: f.object %>
+
+  	<h3></h3>
+  	<table class="table table-bordered">
+  		<tr>
+  			<th>ID</th>
+  			<th>Date</th>
+  			<th>Amount</th>
+  			<th>Notes</th>
+  		</tr>
+  		<tr>
+  			<td><%= f.object.id %></td>
+  			<td><%= f.object.date_transacted.strftime('%d-%b-%Y') %></td>
+  			<td><%= number_to_currency(f.object.amount) %></td>
+  			<td><%= f.object.notes %></td>
+  		</tr>
+  	</table>
+  	<h3></h3>
+
+    <%= f.input :item_id do %>
+      <%= f.collection_select(:item_id, @portfolio.items, :id, :full_name) %>
+	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary" %>
+	<% end %>
+	<%= f.input :source_id do %>
+	  <%= f.collection_select(:source_id, @portfolio.sources.distinct, :id, :name) %>
+	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary" %>
+	<% end %>
+	<%= f.input :payment_type_id, collection: PaymentType.all %>
+	<%= f.input :notes %>
+	<%= f.input :validated, as: :hidden, input_html: { value: 't' } %>
+

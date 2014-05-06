@@ -1,0 +1,6 @@
+<h1>Import Transactions</h1>
+
+<%= form_tag import_transactions_path, multipart: true do %>
+	<%= file_field_tag :file %>
+	<%= submit_tag "Import", class: "btn btn-large btn-primary" %>
+<% end %>

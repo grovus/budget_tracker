@@ -1,0 +1,8 @@
+<h1>Validate Transaction <%= "[ID:#{@transaction.id}]" %></h1>
+
+<%= simple_form_for(@transaction, html: {class: 'input_fields'},
+		url: {action: 'update_individual', controller: 'transactions'}, method: 'put') do |f| %>
+  <%= render 'fields', f: f %>
+  <%= f.submit "Next", class: "btn btn-large btn-primary" %>
+  <%= f.submit "Cancel", class: "btn btn-large btn-primary" %>
+<% end %>

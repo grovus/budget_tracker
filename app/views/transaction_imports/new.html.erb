@@ -1,0 +1,38 @@
+<h1>Import Transactions</h1>
+
+<p>A CSV or Excel file can be used to import records. The following columns/fields are allowed.</p>
+
+<ul>
+  <% TransactionImport.field_names.each do |field| %>
+      <li>
+        <strong><%= field %></strong> -
+        <%= TransactionImport.field_type_for(field).titleize %> type
+      </li>
+  <% end %>
+</ul>
+
+<%= simple_form_for @transaction_import do |f| %>
+  <% if @transaction_import.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@transaction_import.errors.count, "error") %> prohibited this import from completing:</h2>
+      <ul>
+      <% @transaction_import.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="control-group">
+    <div class="attach-set">
+      <%= f.input :file_name, as: :file, input_html: { hidden: true }, label: false %>
+      <span>File to Upload</span>
+      <div class="input-append">
+        <input id="file-display" class="input-large uneditable-input" type="text">
+        <a id="upload-btn" class="btn btn-primary">Select File</a>
+        <%= f.submit "Import", class: "btn btn-primary" %>
+      </div>
+      <%= f.input :import_type, collection: [['Chequing', 'PAC'], ['Visa', 'Visa'],['Amex', 'Amex']] %>       
+    </div>
+  </div>
+<% end %>

@@ -47,7 +47,7 @@ end
     b.optional :min_max
 
     # Calculates readonly automatically from readonly attributes
-    b.optional :readonly
+    b.use :readonly
 
     ## Inputs
     b.use :label_input

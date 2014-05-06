@@ -159,15 +159,20 @@ class PortfoliosController < ApplicationController
   end
 
   def transactions_monthly
+    @per_page = params[:per_page] || 25
   	@portfolio = Portfolio.find(params[:id])
     
     start_date = DateTime.civil( *params.values_at( :year, :month ).map(&:to_i) )
     @month = Date::ABBR_MONTHNAMES[params[:month].to_i]
 
-  	@transactions = @portfolio.transactions.includes(:item, :source, :payment_type)
+  	@all_transactions = @portfolio.transactions.includes(:item, :source, :payment_type)
                       .where({ date_transacted: start_date..(start_date + 1.month - 1.second)})
+    
+    @transactions = @all_transactions
   											.order(sort_column + " " + sort_direction)
-  										    .paginate(page: params[:page], per_page: 25)
+  										    .paginate(page: params[:page], per_page: @per_page)
+
+    @total_spend = @all_transactions.sum(:amount)
   end
 
   def manage

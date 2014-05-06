@@ -1,5 +1,20 @@
 <h1><%= @month %> <%= @year %> (<%= pluralize(@transactions.total_entries, 'transaction') %>)</h1>
+<h1>Total Spent : <%= number_to_currency(@total_spend) %></h1>
 
+<div class="row">
+<div class="span4">
+  <table class="table-nonfluid table-bordered">
+    <tr class="invalid_item_row">
+      <td><%= @transactions.group(:validated).having(validated: false).count.values[0] %> not validated</td>
+    </tr>
+    <tr class="duplicate_item_row">
+      <td><%= @transactions.group(:suspected_dupe_id).having('suspected_dupe_id > 0').count.values[0] %> suspected duplicates</td>
+    </tr>
+  </table>
+</div>
+</div>
+ 
+<div>
 <%= will_paginate @transactions %>
 
 <table class="table table-bordered">
@@ -18,7 +33,7 @@
 
   <tbody>
     <% @transactions.each do |t| %>
-    <tr class="item_row">
+    <tr class="<%= t.suspected_dupe_id ? 'duplicate_item_row' : t.validated ? 'item_row' : 'invalid_item_row' %>">
     	<td><%= link_to t.date_transacted.strftime('%d-%b-%Y'), edit_transaction_path(t) %></td>
     	<td><%= link_to t.item.name, item_path(t.item_id) %></td>
     	<td><%= link_to t.source.name, source_path(t.source_id) %></td>
@@ -33,5 +48,11 @@
 </table>
 
 <%= will_paginate @transactions %>
+</div>
+
+<div>
+Transactions per page <%= select_tag :per_page, options_for_select([10,25,50,100], params[:per_page].to_i),
+       { onchange: "if(this.value){window.location='?per_page='+this.value;}", class: 'span1' } %>
+</div>
 
 <%= link_to "Back", portfolio_path(params[:id]), class: "btn btn-large btn-primary" %>

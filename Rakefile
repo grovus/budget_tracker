@@ -3,4 +3,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-FuelTracker::Application.load_tasks
+BudgetTracker::Application.load_tasks

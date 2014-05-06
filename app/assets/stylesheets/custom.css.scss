@@ -8,6 +8,9 @@ $gray-dark:              lighten(#000, 20%) !default;   // #333
 $gray:                   lighten(#000, 33.5%) !default; // #555
 $gray-light:             lighten(#000, 60%) !default;   // #999
 $gray-lighter:           lighten(#000, 93.5%) !default; // #eee
+$red-lighter:            lighten(#f00, 50%) !default; // #800
+$green-lighter:          lighten(#0f0, 50%) !default; // #080
+$blue-lighter:           lighten(#0f0, 50%) !default; // #080
 
 @mixin box_sizing {
   -moz-box-sizing: border-box;
@@ -61,6 +64,11 @@ h2 {
   text-align: center;
   font-weight: normal;
   color: #eee;
+}
+
+h3 {
+    border-top: solid 1px #999;
+    font-size: 1.2em;
 }
 
 p {
@@ -234,6 +242,30 @@ input {
   }
 }
 
+.invalid_item_row {
+  td {
+    text-align: right;
+    padding: 0px 8px; 
+    background-color: #f22;
+  }
+}
+
+.duplicate_item_row {
+  td {
+    text-align: right;
+    padding: 0px 8px; 
+    background-color: #fa0;
+  }
+}
+
+.invalid_cell {
+  background-color: #f22;
+}
+
+.valid_cell {
+  background-color: #2f2;
+}
+
 .separator {
   border-top: 1px solid $grayMediumLight;
   padding-top: 20px;
@@ -243,6 +275,10 @@ table {
   a {
     color: inherit
   }
+}
+
+.table-nonfluid {
+   width: auto !important;
 }
 
 .category_fields { 
