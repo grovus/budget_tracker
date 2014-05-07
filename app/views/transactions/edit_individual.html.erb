@@ -1,4 +1,4 @@
-<h1>Validate Transaction <%= "[ID:#{@transaction.id}]" %></h1>
+<h1>Edit Transaction <%= "[#{@current} of #{@total}]" %></h1>
 
 <%= simple_form_for(@transaction, html: {class: 'input_fields'},
 		url: {action: 'update_individual', controller: 'transactions'}, method: 'put') do |f| %>

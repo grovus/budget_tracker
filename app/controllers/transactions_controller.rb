@@ -38,28 +38,31 @@ class TransactionsController < ApplicationController
   	@transaction = Transaction.find(params[:id])
   	if @transaction.update_attributes(transaction_params)
   	  flash[:success] = "Transaction updated"
-  	  redirect_to @portfolio and return #unless contains_invalid
-      #@transaction = Transaction.find(200)
+  	  redirect_to @portfolio and return
   	end
   	  
     render 'edit'
   end
 
   def edit_multiple
-    unless params[:transaction_ids].nil?
+    transaction_ids = params[:transaction_ids]
+    unless transaction_ids.nil?
       if params[:commit].start_with? 'Delete'
         flash[:success] = "deleted #{params[:transaction_ids].size} transactions"
-        Transaction.destroy(params[:transaction_ids])
+        Transaction.destroy(transaction_ids)
         redirect_to current_user.portfolio
       end
     end
-    # retrieve the active list of not-yet-validated transactions
     @portfolio = current_user.portfolio
-    @transactions = Transaction.find(params[:transaction_ids])
-    Transaction.update_all({ edit_mode: true }, { id: params[:transaction_ids] })
+    transaction_ids ||= @portfolio.transactions.where(condition(params[:edit_type].to_sym)).collect(&:id)
+    @transactions = Transaction.find(transaction_ids)
+    Transaction.update_all({ edit_mode: true }, { id: transaction_ids })
  
+    @current = session[:current_editable] = 1
+    @total = session[:total_editable] = @transactions.size
+
     if params[:edit_individual]
-      @transaction = contains_editable
+      @transaction = @transactions.first
       render 'edit_individual' and return if @transaction
     end 
   end
@@ -81,6 +84,8 @@ class TransactionsController < ApplicationController
     @portfolio = current_user.portfolio
     if params[:commit].start_with? 'Cancel'
       @portfolio.transactions.update_all(edit_mode: false)
+      session[:current_editable] = nil
+      session[:total_editable] = nil
     else
       @transaction = Transaction.find(params[:transaction][:id])
       if @transaction.update_attributes(transaction_params)
@@ -90,18 +95,16 @@ class TransactionsController < ApplicationController
 
     @transaction = contains_editable
     redirect_to transaction_imports_path and return unless @transaction
-    
+
+    @current = session[:current_editable] += 1 
+    @total = session[:total_editable]
+
     render 'edit_individual'
   end
 
   def index
     @portfolio = current_user.portfolio
-    @transactions = Transaction.all.limit(1)
-
-    @transactions.each do |t|
-      @transaction = t
-      render 'edit'
-    end
+    @transactions = @portfolio.transactions.all
   end
 
   def import
@@ -109,17 +112,42 @@ class TransactionsController < ApplicationController
     redirect_to current_user.portfolio
   end
 
+  def unreconciled
+    @portfolio = current_user.portfolio
+    @transactions = @portfolio.transactions.where(validated: false)
+  end
+
+  def duplicated
+    @portfolio = current_user.portfolio
+    @transactions = @portfolio.transactions.where('suspected_dupe_id is not null')
+  end
+
+
   private
 
     def transaction_params
     	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes, :validated, :edit_mode)
     end
 
-    def contains_invalid
+    def contains_unreconciled
       current_user.portfolio.transactions.where(validated: false).first
     end
 
     def contains_editable
       current_user.portfolio.transactions.find_by_edit_mode(true)
     end
+
+    def condition(param)
+      Rails.logger.debug "Edit param : #{param}"
+      if param == :imported
+        { last_imported: true }
+      elsif param == :unreconciled
+        { validated: false }
+      elsif param == :duplicated
+        'suspected_dupe_id is not null'
+      else
+        true
+      end
+    end
+
 end

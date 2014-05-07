@@ -1,5 +1,6 @@
 <h1>Edit Transactions</h1>
 
+<% if @transactions.size > 0 %>
 <%= form_tag update_multiple_transactions_path, method: :put do %>
   <% for transaction in @transactions %>
   	<%= simple_fields_for "transaction_ids[]", transaction do |f| %>
@@ -7,4 +8,8 @@
   	<% end %>
   <% end %>
   <p><%= submit_tag "Submit" %></p>
+<% end %>
+<% else %>
+<p>There are no imported transactions to edit</p>
+<%= link_to "Back", :back, class: "btn btn-large btn-primary" %>
 <% end %>

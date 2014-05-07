@@ -16,10 +16,14 @@
                 <% if current_user.portfolio && !current_user.portfolio.id.blank? && !current_user.portfolio.name.blank? %>
                   <li><%= link_to "Import", new_transaction_import_path %></li>
                   <li><%= link_to "Add New", portfolio_path(current_user.portfolio) %></li>
-                   <li class="divider"></li>
+                  <li class="divider"></li>
                   <li><%= link_to "Show Imported", transaction_imports_path %></li>
-                  <li><%= link_to "Show Unreconciled", portfolio_path(current_user.portfolio) %></li>
-                  <li><%= link_to "Show Duplicates", portfolio_path(current_user.portfolio) %></li>
+                  <li><%= link_to "Show Unreconciled", unreconciled_transactions_path %></li>
+                  <li><%= link_to "Show Duplicates", duplicated_transactions_path %></li>
+                  <li class="divider"></li>
+                  <li><%= link_to "Edit Imported", edit_multiple_transactions_path(edit_individual: true, edit_type: :imported), method: :post %></li>
+                  <li><%= link_to "Edit Unreconciled", edit_multiple_transactions_path(edit_individual: true, edit_type: :unreconciled), method: :post %></li>
+                  <li><%= link_to "Edit Duplicates", edit_multiple_transactions_path(edit_individual: true, edit_type: :duplicated), method: :post %></li>
                 <% end %>
               </ul>
             </li>            

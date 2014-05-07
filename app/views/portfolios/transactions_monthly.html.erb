@@ -47,11 +47,17 @@
 
 </table>
 
-<%= will_paginate @transactions %>
+
+  <div class="digg_pagination">
+    <div class="page_info">
+      <%= page_entries_info @transactions %>
+    </div>
+    <%= will_paginate @transactions %>
+  </div>
 </div>
 
 <div>
-Transactions per page <%= select_tag :per_page, options_for_select([10,25,50,100], params[:per_page].to_i),
+Transactions per page <%= select_tag :per_page, options_for_select([10,25,50,100,@transactions.total_entries], params[:per_page].to_i),
        { onchange: "if(this.value){window.location='?per_page='+this.value;}", class: 'span1' } %>
 </div>
 

@@ -9,6 +9,8 @@ BudgetTracker::Application.routes.draw do
       put :update_multiple
       post :edit_individual
       put :update_individual
+      get :unreconciled
+      get :duplicated
     end
   end
   resources :transaction_imports
