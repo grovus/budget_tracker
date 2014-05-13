@@ -25,6 +25,7 @@ BudgetTracker::Application.routes.draw do
   match '/about', to: 'static_pages#about', via: 'get'
   match '/contact', to: 'static_pages#contact', via: 'get'
   match '/manage', to: 'portfolios#manage', via: 'get'
+  match '/transactions/:id/split', to: 'transactions#split', via: 'get', as: 'transactions_split'
   match '/edit_selected', to: 'categories#edit_selected', via: 'post'
   match '/edit_selected_source', to: 'sources#edit_selected', via: 'post'
   match '/portfolios/:id/transactions/:year/:month', to: 'portfolios#transactions_monthly', via: 'get'

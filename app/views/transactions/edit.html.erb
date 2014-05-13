@@ -4,3 +4,5 @@
   <%= render 'fields', f: f %>
   <%= f.submit "Save Changes", class: "btn btn-large btn-primary" %>
 <% end %>
+
+<%= link_to "Split Transaction", transactions_split_path(), class: "btn btn-large btn-primary" %>

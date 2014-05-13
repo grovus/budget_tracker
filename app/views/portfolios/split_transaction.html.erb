@@ -1,0 +1,14 @@
+<h1>Split Transaction</h1>
+
+<%= simple_form_for @portfolio do |f| %>
+  <%= f.simple_fields_for :transactions, @transactions do |transaction_fields| %>
+    <%= render 'transaction_fields', :f => transaction_fields %>  
+  <% end %>
+      
+  <p>
+    <%= link_to_split_transaction "Split", f, @transactions.first, :transactions %>     
+  </p>
+
+  <%= f.button :submit, class: "btn btn-large btn-primary" %>
+  <%= link_to "Cancel", :back, class: "btn btn-large btn-primary" %>
+<% end %>

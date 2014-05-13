@@ -1,0 +1,64 @@
+
+<% if !f.object.id.nil? %>
+
+<table>
+	<tr>
+		<td>
+	<%= f.input :date_transacted, label: 'Date' do %>
+	  <%= f.date_field(:date_transacted, readonly: true) %>
+	<% end %>
+	<%= f.input :source_id do %>
+	  <%= f.collection_select(:source_id, @portfolio.sources.distinct, :id, :name) %>
+	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary" %>
+	<% end %>
+	<%= f.input :payment_type_id, collection: PaymentType.all %>
+
+    <%= f.input :item_id do %>
+      <%= f.collection_select(:item_id, @portfolio.items, :id, :full_name) %>
+	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary" %>
+	<% end %>
+	<%= f.input :amount, input_html: {step: 0.01} %>
+	<%= f.input :notes %>
+
+	<%= f.input :validated, as: :hidden, input_html: { value: 't' } %>	
+	<%= f.input :edit_mode, as: :hidden, input_html: { value: 'f' } %>	
+	<%= f.input :id, as: :hidden %>	
+		</td>
+	</tr>
+</table>
+
+<% else %>
+
+<div class="control-group category_fields">
+
+<table>
+	<tr>
+    
+    <td>
+    <%= f.input :item_id do %>
+      <%= f.collection_select(:item_id, @portfolio.items, :id, :full_name) %>
+	<% end %>
+	</td>
+	<td>
+	<%= f.input :amount, input_html: {step: 0.01} %>
+	</td>
+	<td>
+	<%= f.input :notes %>
+	</td>
+    
+    </tr>
+</table>
+
+<%= link_to_remove_fields "remove", f %>
+
+<%= f.input :date_transacted, as: :hidden %>	
+<%= f.input :source_id, as: :hidden, input_html: { value: f.object.source_id } %>	
+<%= f.input :payment_type_id, as: :hidden %>	
+
+<%= f.input :validated, as: :hidden, input_html: { value: 't' } %>	
+<%= f.input :edit_mode, as: :hidden, input_html: { value: 'f' } %>	
+
+</div>
+
+
+<% end %>

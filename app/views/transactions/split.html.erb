@@ -1,4 +1,4 @@
-<h1>Edit Transaction <%= "(#{@current} of #{@total})" %></h1>
+<h1>Split Transaction</h1>
 
 <%= render 'shared/error_messages', object: @transaction %>
 
@@ -11,8 +11,7 @@
   </p>
 
   <div class="separator">
-  	<%= f.submit "Next", class: "btn btn-large btn-primary" %>
-  	<%= f.submit "Cancel", class: "btn btn-large btn-primary" %>
+  	<%= f.submit "Save Changes", class: "btn btn-large btn-primary" %>
   </div>
 
 

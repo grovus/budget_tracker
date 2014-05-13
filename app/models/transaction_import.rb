@@ -113,6 +113,7 @@ class TransactionImport
       #tx.date_imported = Time.now
       tx.date_transacted = date
       tx.amount = row["amount"]
+      tx.original_amount = tx.amount
     
       # look for matching tx with same context key and copy source/category
       match = Transaction.find_by_context_key(row["context_key"])

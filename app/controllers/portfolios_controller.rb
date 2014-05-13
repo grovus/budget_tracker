@@ -182,7 +182,7 @@ class PortfoliosController < ApplicationController
   end
 
   def update
-  	if current_user.portfolio.update_attributes(params)
+  	if current_user.portfolio.update_attributes(portfolio_params)
   	  flash[:success] = "Successfuly updated portfolio"
   	else
   	  render 'new'
@@ -213,6 +213,12 @@ class PortfoliosController < ApplicationController
   	@categories = current_user.portfolio.categories.paginate(page: params[:page], per_page: 1)
   end
 
+  def split_transaction
+    @portfolio = current_user.portfolio
+    transaction = @portfolio.transactions.find(params[:id])
+    @transactions = [transaction, transaction.dup] unless transaction.nil?
+  end
+
   private
 
   	def check_setup
@@ -221,7 +227,8 @@ class PortfoliosController < ApplicationController
   	end
 
     def portfolio_params
-      params.require(:portfolio).permit(:name, categories_attributes: [:id, :name, :_destroy, items_attributes: [:id, :name, :_destroy] ])
+      params.require(:portfolio).permit(:name, categories_attributes: [:id, :name, :_destroy, items_attributes: [:id, :name, :_destroy] ],
+        transactions_attributes: [:id, :item_id, :source_id, :payment_type_id, :date_transacted, :amount, :notes, :edit_mode, :validated, :_destroy])
     end
 
     def sort_column

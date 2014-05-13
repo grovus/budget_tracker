@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140502182931) do
+ActiveRecord::Schema.define(version: 20140512204306) do
 
   create_table "categories", force: true do |t|
     t.string   "name"
@@ -85,6 +85,8 @@ ActiveRecord::Schema.define(version: 20140502182931) do
     t.string   "ref_code"
     t.integer  "suspected_dupe_id"
     t.boolean  "edit_mode",         default: false
+    t.float    "original_amount"
+    t.integer  "parent_id"
   end
 
   add_index "transactions", ["context_key"], name: "index_transactions_on_context_key"

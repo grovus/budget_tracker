@@ -2,6 +2,7 @@ class Transaction < ActiveRecord::Base
   belongs_to :item
   belongs_to :source
   belongs_to :payment_type
+  belongs_to :portfolio
 
   after_initialize :set_defaults
 
@@ -34,5 +35,26 @@ class Transaction < ActiveRecord::Base
     self[:payment_type_id] ||= Transaction.last.payment_type_id || PaymentType.find_by(name: 'Visa').id
     self[:item_id] ||= Item.find_by(name: 'Unknown').id
     self[:source_id] ||= Source.find_by(name: 'Unknown').id
+  end
+
+  def split
+    self[:original_amount] ||= self[:amount] 
+    split_transaction = dup
+    split_transaction.parent_id = self[:id]
+    split_transaction
+  end
+
+  def validate_split_amounts(amounts)
+    amounts_sum = amounts.sum(&:to_f) + self[:amount]
+    if self[:original_amount] != amounts_sum
+      Rails.logger.debug amounts
+      errors.add(:amount, "Split amounts ($#{amounts_sum}) must equal original transaction amount of $#{self[:original_amount]}")
+      return false
+    elsif amounts.size != amounts.uniq.size
+      errors.add(:amount, "Split amounts must be unique")
+      return false
+    end
+
+    true
   end
 end

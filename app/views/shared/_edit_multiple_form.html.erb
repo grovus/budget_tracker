@@ -23,12 +23,27 @@
     	<td class="<%= 'invalid_cell' if t.item.name == 'Unknown' %>"><%= t.item.name %></td>
     	<td class="<%= 'invalid_cell' if t.source.name == 'Unknown' %>"><%= t.source.name %></td>
     	<td class="number_cell"><%= number_to_currency(t.amount) %></td>
-      <td><%= t.payment_type_id %></td>
+      <td><%= t.payment_type.name %></td>
     	<td><%= t.notes %></td>
     	<td class="<%= t.validated ? 'valid_cell' : 'invalid_cell' %>"><%= t.validated %></td>
 <!--      <td><%= link_to "edit", edit_transaction_path(t) %> <%= link_to "delete", t, method: :delete, data: { confirm: "You sure?" } %></td>
 -->
     </tr>
+    
+    <% if @transaction_dups %>
+    <% dup = @transaction_dups.find { |dup| dup[:id] == t[:suspected_dupe_id] } %>
+    <tr class="item_row">
+      <td></td>
+      <td><%= dup.date_transacted.strftime('%d-%b-%Y') %></td>
+      <td class="<%= 'invalid_cell' if dup.item.name == 'Unknown' %>"><%= dup.item.name %></td>
+      <td class="<%= 'invalid_cell' if dup.source.name == 'Unknown' %>"><%= dup.source.name %></td>
+      <td class="number_cell"><%= number_to_currency(dup.amount) %></td>
+      <td><%= dup.payment_type.name %></td>
+      <td><%= dup.notes %></td>
+      <td class="<%= dup.validated ? 'valid_cell' : 'invalid_cell' %>"><%= dup.validated %></td>
+    </tr>
+    <% end %>
+
     <% end %>
   </tbody>
 

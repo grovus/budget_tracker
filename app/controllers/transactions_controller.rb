@@ -50,7 +50,7 @@ class TransactionsController < ApplicationController
       if params[:commit].start_with? 'Delete'
         flash[:success] = "deleted #{params[:transaction_ids].size} transactions"
         Transaction.destroy(transaction_ids)
-        redirect_to current_user.portfolio
+        redirect_to :back and return
       end
     end
     @portfolio = current_user.portfolio
@@ -78,6 +78,8 @@ class TransactionsController < ApplicationController
   end
 
   def edit_individual
+    @portfolio = current_user.portfolio
+    #@transaction = Transaction.new
   end
 
   def update_individual
@@ -88,8 +90,33 @@ class TransactionsController < ApplicationController
       session[:total_editable] = nil
     else
       @transaction = Transaction.find(params[:transaction][:id])
+
+      # this should change once Transaction is refactored
+      split_count = 0
+      splits = params[:transaction][:split_transactions]
+      unless splits.nil?
+
+        if !@transaction.validate_split_amounts(splits.values.collect { |val| val[:amount] }) 
+          render 'edit_individual' and return
+        end
+
+        splits.keys.each do |key|
+          trans_params = splits[key]
+          next if trans_params['_destroy'] == "1"
+
+          # need to be able to validate this group of transactions against one another and their parent
+          # ie. the child amounts should sum to the amount of the parent
+          # also, set errors on each (will likely only work once refactored as a nested association)
+          puts trans_params.class
+          if Transaction.create(trans_params.except(:_destroy).permit!)
+            split_count += 1
+          end
+        end
+      end
+
       if @transaction.update_attributes(transaction_params)
         flash[:success] = "Transaction updated"
+        flash[:success] += " and created #{split_count} splits" if split_count > 0
       end
     end
 
@@ -100,6 +127,11 @@ class TransactionsController < ApplicationController
     @total = session[:total_editable]
 
     render 'edit_individual'
+  end
+
+  def split
+    @portfolio = current_user.portfolio
+    @transaction = @portfolio.transactions.find(params[:id])
   end
 
   def index
@@ -120,13 +152,14 @@ class TransactionsController < ApplicationController
   def duplicated
     @portfolio = current_user.portfolio
     @transactions = @portfolio.transactions.where('suspected_dupe_id is not null')
+    @transaction_dups = @portfolio.transactions.find(@transactions.collect(&:suspected_dupe_id))
   end
 
 
   private
 
     def transaction_params
-    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes, :validated, :edit_mode)
+    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes, :validated, :edit_mode, :_destroy)
     end
 
     def contains_unreconciled
