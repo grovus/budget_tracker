@@ -2,13 +2,21 @@ class CategoriesController < ApplicationController
 
   def new
   	@category = Category.new
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.js # new.js.erb
+    end    
   end
 
   def create
   	@category = current_user.portfolio.categories.build(category_params)
   	if @category.save
   		flash[:success] = 'Category successfully created'
-  		redirect_back_or manage_url
+      respond_to do |format|
+        format.html { redirect_back_or manage_url }
+        format.js
+      end
   	else
   		render 'new'
   	end
@@ -18,17 +26,29 @@ class CategoriesController < ApplicationController
   	@category = Category.find(params[:category][:id]) 
   	if (params[:commit] == 'Delete')
   		@category.destroy
-        flash[:success] = "Category deleted"
-  		redirect_back_or manage_url
-  	end
+      flash[:success] = "Category deleted"
+      respond_to do |format|
+        format.html { redirect_back_or manage_url }
+        format.js { render 'destroy_selected.js.erb' }
+      end    
+    else
+      respond_to do |format|
+        format.html
+        format.js 
+      end    
+    end
+
   end
 
   def update
  	@category = Category.find(params[:id])
   	if @category.update_attributes(category_params)
   		flash[:success] = "Category successfully updated"
-  		redirect_back_or manage_url
-  	else
+      respond_to do |format|
+        format.html { redirect_back_or manage_url }
+        format.js
+      end  	
+    else
   		render 'edit_selected'
   	end  
   end

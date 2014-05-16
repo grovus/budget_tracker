@@ -1,0 +1,7 @@
+$('.modal .modal-body').html('<div class="alert alert-success">Successfully updated source <%= @source.name %></div>');
+$('.alert-success').html('Successfully updated source <%= @source.name %>');
+
+$('.source-select').val(<%= @source.id %>);
+$('.source-select option:selected').text("<%= raw (@source.name) %>");
+
+setTimeout(function() { $('.modal').modal('toggle'); }, 500);

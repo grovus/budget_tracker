@@ -8,7 +8,7 @@ class Category < ActiveRecord::Base
   accepts_nested_attributes_for :items, allow_destroy: true
 
   validates :name,  presence: true, uniqueness: { scope: :portfolio_id }, length: { maximum: 50 }
-  validates :items, presence: true, length: { minimum: 1, too_short: "must contain at least %{count} item" }
+  validates :items, length: { minimum: 1, too_short: "must contain at least %{count} item" }
 
   validates :portfolio_id, uniqueness: { scope: :name }
 
@@ -38,10 +38,8 @@ class Category < ActiveRecord::Base
 
   def unique_per_portfolio?
   	portfolio = Portfolio.find(self.portfolio_id)
-  	category = portfolio.categories.find(:all, :conditions => ["name = ?", self.name])
+  	category = portfolio.categories.all(conditions: ["name = ?", self.name])
 
-	if category.size > 0 
-		self.errors.add(:name, "Category name should be unique")
-	end
+		self.errors.add(:name, "Category name should be unique") if category.size > 0
   end
 end

@@ -68,7 +68,8 @@ class TransactionsController < ApplicationController
   end
 
   def update_multiple
-    @transactions = Transaction.update(params[:transaction_ids].keys, params[:transaction_ids].values).reject { |p| p.errors.empty? }
+    @transactions = Transaction.update(params[:transaction_ids].keys, 
+        params[:transaction_ids].values).reject { |p| p.errors.empty? }
     if @transactions.empty?
       flash[:notice] = "Transactions updated"
       redirect_to current_user.portfolio
@@ -107,7 +108,6 @@ class TransactionsController < ApplicationController
           # need to be able to validate this group of transactions against one another and their parent
           # ie. the child amounts should sum to the amount of the parent
           # also, set errors on each (will likely only work once refactored as a nested association)
-          puts trans_params.class
           if Transaction.create(trans_params.except(:_destroy).permit!)
             split_count += 1
           end
@@ -146,12 +146,12 @@ class TransactionsController < ApplicationController
 
   def unreconciled
     @portfolio = current_user.portfolio
-    @transactions = @portfolio.transactions.where(validated: false)
+    @transactions = @portfolio.transactions.where(condition(:unreconciled))
   end
 
   def duplicated
     @portfolio = current_user.portfolio
-    @transactions = @portfolio.transactions.where('suspected_dupe_id is not null')
+    @transactions = @portfolio.transactions.where(condition(:duplicated))
     @transaction_dups = @portfolio.transactions.find(@transactions.collect(&:suspected_dupe_id))
   end
 

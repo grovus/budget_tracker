@@ -1,0 +1,13 @@
+$modal = $('.modal'),
+$modalBody = $('.modal .modal-body'),
+
+$modalBody.html('<div class="alert alert-success">Successfully created category <%= @category.name %></div>');
+
+setTimeout(function() { $modal.modal('toggle'); }, 500);
+
+$alert = $('.alert-success');
+$alert.html('Successfully created category <%= @category.name %>');
+
+$select = $('.category-select');
+$select.append('<option value="<%= @category.id %>"><%= @category.name %></option>');
+$select.val(<%= @category.id %>);

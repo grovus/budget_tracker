@@ -1,10 +1,6 @@
 <% provide(:title, "New category") %>
-<h1>Add Category</h1>
 
-<div class="row">
-  <div class="span6 offset3">
-
-<%= simple_form_for(@category, html: {class: 'form-vertical'}) do |f| %>
+<%= simple_form_for(@category, html: {class: 'form-vertical'}, remote: true) do |f| %>
   <%= render 'shared/error_messages', object: @category %>
   <%= f.input :name %>
 
@@ -16,9 +12,5 @@
     <%= link_to_add_fields "Add Item", f, :items %>     
   </p>
 
-  <%= f.button :submit, class: "btn btn-large btn-primary" %>
-  <%= link_to "Cancel", :back, class: "btn btn-large btn-primary" %>
+  <%= f.button :submit, class: "btn btn-medium btn-primary" %>
 <% end %>
-
-  </div>
-</div>

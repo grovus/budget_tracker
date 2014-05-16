@@ -48,7 +48,7 @@ class Transaction < ActiveRecord::Base
     amounts_sum = amounts.sum(&:to_f) + self[:amount]
     if self[:original_amount] != amounts_sum
       Rails.logger.debug amounts
-      errors.add(:amount, "Split amounts ($#{amounts_sum}) must equal original transaction amount of $#{self[:original_amount]}")
+      errors.add(:amount, "Split amounts (#{number_to_currency(amounts_sum)}) must equal original transaction amount of #{number_to_currency(self[:original_amount])}")
       return false
     elsif amounts.size != amounts.uniq.size
       errors.add(:amount, "Split amounts must be unique")

@@ -1,0 +1,8 @@
+$('.modal .modal-heading').html("Destroy Source");
+$('.modal .modal-body').html('<div class="alert alert-success">Successfully removed source <%= @source.name %></div>');
+$modal = $('.modal');
+$modal.modal();
+
+$(".source-select option[value='<%= @source.id %>']").remove();
+
+setTimeout(function() { $modal.modal('toggle'); }, 1000);

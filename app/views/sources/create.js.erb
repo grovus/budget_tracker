@@ -1,0 +1,13 @@
+$modal = $('.modal'),
+$modalBody = $('.modal .modal-body'),
+
+$modalBody.html('<div class="alert alert-success">Successfully created source <%= @source.name %></div>');
+
+setTimeout(function() { $modal.modal('toggle'); }, 500);
+
+$alert = $('.alert-success');
+$alert.html('Successfully created source <%= @source.name %>');
+
+$select = $('.source-select');
+$select.append('<option value="<%= @source.id %>"><%= @source.name %></option>');
+$select.val(<%= @source.id %>);

@@ -1,0 +1,6 @@
+$('.modal .modal-body').html('<div class="alert alert-success">Successfully updated category <%= @category.name %></div>');
+$('.alert-success').html('Successfully updated source <%= @category.name %>');
+
+$('.category-select').val(<%= @category.id %>);
+
+setTimeout(function() { $('.modal').modal('toggle'); }, 500);

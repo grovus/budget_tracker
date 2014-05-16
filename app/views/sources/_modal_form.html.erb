@@ -1,0 +1,5 @@
+	<%= simple_form_for(@source, html: {class: 'form-vertical'}, remote: true) do |f| %>
+	  <%= render 'shared/error_messages', object: @source %>
+	  <%= f.input :name %>
+	  <%= f.button :submit, class: "btn btn-medium btn-primary" %>
+	<% end %>

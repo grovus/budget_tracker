@@ -19,8 +19,8 @@
 	</td>
 	<td>
 	<%= f.input :source_id do %>
-	  <%= f.collection_select(:source_id, @portfolio.sources.distinct, :id, :name) %>
-	  <%= link_to "Add New", new_source_path, class: "btn btn-small btn-primary" %>
+	  <%= f.collection_select(:source_id, @portfolio.sources.distinct, :id, :name, {}, { class: 'source-select' }) %>
+	  <%= link_to "Add New", new_source_path, class: "btn btn-small btn-primary", remote: true  %>
 	<% end %>
 	</td>
 
@@ -51,4 +51,3 @@
 <%= f.input :validated, as: :hidden, input_html: { value: 't' } %>	
 <%= f.input :edit_mode, as: :hidden, input_html: { value: 'f' } %>	
 <%= f.input :id, as: :hidden %>	
-

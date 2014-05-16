@@ -12,12 +12,10 @@ class Item < ActiveRecord::Base
   end
 
   def unique_per_category?
- 	category = Category.find(self.category_id)
-  	item = category.items.find(:all, :conditions => ["name = ?", self.name])
+ 	  category = Category.find(self.category_id)
+    item = category.items.all(conditions: ["name = ?", self.name])
 
-	if item.size > 0 
-		self.errors.add(:name, "Item name should be unique")
-	end  	
+		self.errors.add(:name, "Item name should be unique") if item.size > 0
   end
 
 end

@@ -1,25 +1,27 @@
 <h3><%= link_to @portfolio.name, @portfolio %></h3>
 
 <%= simple_form_for(@category, 
-    url: {action: "edit_selected", controller: "categories"}, html: {class: 'form-horizontal'}) do |f| %>
+    url: {action: "edit_selected", controller: "categories"}, html: {class: 'form-horizontal'}, remote: true) do |f| %>
   <%= f.input :id, label: 'Category' do %>
-    <%= f.collection_select(:id, @portfolio.categories, :id, :name) %>
+    <%= f.collection_select(:id, @portfolio.categories, :id, :name, {}, { class: 'category-select' }) %>
     <% if @portfolio.categories.any? %>
 	  <%= f.button :submit, 'Edit', class: "btn btn-medium btn-primary" %>
 	  <%= f.button :submit, 'Delete', confirm: 'Sure bout this?', class: "btn btn-medium btn-primary" %>
 	<% end %>
-	<%= link_to "Add", new_category_path, class: "btn btn-medium btn-primary" %>
+	<%= link_to "Add", new_category_path, class: "btn btn-medium btn-primary", remote: true %>
   <% end %>
 <% end %>
 
 <%= simple_form_for(@source, 
-    url: {action: "edit_selected", controller: "sources"}, html: {class: 'form-horizontal'}) do |f| %>
+    url: {action: "edit_selected", controller: "sources"}, html: {class: 'form-horizontal'}, remote: true) do |f| %>
   <%= f.input :id, label: 'Source' do %>
-    <%= f.collection_select(:id, @portfolio.sources, :id, :name) %>
+    <%= f.collection_select(:id, @portfolio.sources, :id, :name, {}, { class: 'source-select' }) %>
     <% if @portfolio.sources.any? %>
   	  <%= f.button :submit, 'Edit', class: "btn btn-medium btn-primary" %>
 	  <%= f.button :submit, 'Delete', confirm: 'Sure bout this?', class: "btn btn-medium btn-primary" %>
 	<% end %>
-	<%= link_to "Add", new_source_path, class: "btn btn-medium btn-primary" %>
+	<%= link_to "Add", new_source_path, class: "btn btn-medium btn-primary", remote: true %>
   <% end %>
 <% end %>
+
+<%= render 'layouts/modal' %>

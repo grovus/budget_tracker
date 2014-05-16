@@ -4,15 +4,23 @@ class SourcesController < ApplicationController
 
   def new
   	@source = Source.new
+
+    respond_to do |format|
+      format.html # new.html.erb
+      format.js # new.js.erb
+    end
   end
 
   def create
   	@source = current_user.portfolio.sources.build(source_params)
   	if @source.save
-  		flash[:success] = "Succesfully created source #{params[:source][:name]}"
-  		redirect_back_or manage_url
+  		flash[:success] = "Successfully created source #{params[:source][:name]}"
+
+      respond_to do |format|
+  		  format.html { redirect_back_or manage_url }
+        format.js
+      end
   	else
-  		#flash[:error] = "Ruhroh, not successed"
   		render 'new'
   	end
   end
@@ -21,8 +29,16 @@ class SourcesController < ApplicationController
   	@source = Source.find(params[:source][:id]) 
   	if (params[:commit] == 'Delete')
   		@source.destroy
-        flash[:success] = "Source '#{@source.name}' deleted"
-        redirect_back_or manage_url
+      flash[:success] = "Source '#{@source.name}' deleted"
+      respond_to do |format|
+        format.html { redirect_back_or manage_url }
+        format.js { render 'destroy_selected.js.erb' }
+      end    
+    else
+      respond_to do |format|
+        format.html
+        format.js 
+      end    
   	end
   end
 
@@ -30,8 +46,11 @@ class SourcesController < ApplicationController
  	  @source = Source.find(params[:id])
   	if @source.update_attributes(source_params)
   		flash[:success] = "Source '#{@source.name}' successfully updated"
-  		redirect_back_or manage_url
-  	else
+      respond_to do |format|
+        format.html { redirect_back_or manage_url }
+        format.js
+      end
+    else
   		render 'edit_selected'
   	end    
   end
