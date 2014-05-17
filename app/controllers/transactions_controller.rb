@@ -1,6 +1,11 @@
 class TransactionsController < ApplicationController
   def new
+    @portfolio = current_user.portfolio
   	@transaction = Transaction.new
+    respond_to do |format|
+      format.html # new.html.erb
+      format.js # new.js.erb
+    end
   end
 
   def create
@@ -8,11 +13,14 @@ class TransactionsController < ApplicationController
   	@transaction = @item.transactions.build(transaction_params)
   	if @transaction.save
   		flash[:success] = "Transaction '#{@transaction.item.name} / #{@transaction.source.name}' successfully added to portfolio"
+      respond_to do |format|
+        format.html { redirect_to current_user.portfolio and return }
+        format.js { render 'new.js.erb' and return }
+      end
   	else
   		@transaction.errors.each do |attr, message|
           flash[:error] ||= message
-        end
-  		#flash[:error] = 'Ruhroh, not successing'
+      end
   	end
   	redirect_to current_user.portfolio
   end

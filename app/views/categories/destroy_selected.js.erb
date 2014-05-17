@@ -1,6 +1,6 @@
-$('.modal .modal-heading').html("Destroy Category");
-$('.modal .modal-body').html('<div class="alert alert-success">Successfully removed category <%= @category.name %></div>');
-$modal = $('.modal');
+$('#modal .modal-heading').html("Destroy Category");
+$('#modal .modal-body').html('<div class="alert alert-success">Successfully removed category <%= @category.name %></div>');
+$modal = $('#modal');
 $modal.modal();
 
 $(".category-select option[value='<%= @category.id %>']").remove();

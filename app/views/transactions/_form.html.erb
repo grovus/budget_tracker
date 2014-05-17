@@ -1,0 +1,6 @@
+<%= simple_form_for(@transaction, html: {class: 'input_fields'}, remote: true) do |f| %>
+  <%= render 'fields', f: f %>
+  <%= f.button :submit, class: "btn btn-large btn-primary" %>
+<% end %>
+
+<%= render 'layouts/modal' %>

@@ -5,14 +5,14 @@
 		<td>
     <%= f.input :item_id do %>
       <%= f.collection_select(:item_id, @portfolio.items, :id, :full_name, {}, { class: 'category-select' }) %>
-	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary" %>
+	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary", remote: true %>
 	<% end %>
 	<%= f.input :source_id do %>
 	  <%= f.collection_select(:source_id, @portfolio.sources.distinct, :id, :name, {}, { class: 'source-select' }) %>
 	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary", remote: true %>
 	<% end %>
 	<%= f.input :date_transacted, label: 'Date' do %>
-	  <%= f.date_field(:date_transacted, readonly: true) %>
+	  <%= f.date_field(:date_transacted, readonly: !f.object.new_record?) %>
 	<% end %>
 	<%= f.input :amount, input_html: {step: 0.01} %>
 	<%= f.input :payment_type_id, collection: PaymentType.all %>

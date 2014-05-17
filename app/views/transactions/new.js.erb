@@ -1,0 +1,17 @@
+$modalHeading = $('#modal-transaction .modal-heading');
+$modalHeading.html("Create Transaction");
+
+<% unless @transaction.new_record? %>
+	$modalMsg = $('#modal-transaction .modal-message');
+	$modalMsg.html('<div class="alert alert-success">Transaction <%= @transaction.item.name %> (<%= @transaction.source.name %>) successfully added to portfolio</div>');
+
+	<% @transaction = Transaction.new %>
+	<% @portfolio = current_user.portfolio %>
+<% end %>
+
+$modalBody = $('#modal-transaction .modal-body'),
+$modalBody.addClass("transaction-modal-body");
+$modalBody.html("<%= escape_javascript(render 'form') %>");
+
+$modal = $('#modal-transaction');
+$modal.modal();
