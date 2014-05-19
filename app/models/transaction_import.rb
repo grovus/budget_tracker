@@ -81,6 +81,7 @@ class TransactionImport
     transactions = []
 
     CSV.foreach(@file_name.path) do |line|
+      
       if line.size != field_names.size
       	errors.add :base, "Incorrect file format. Found #{line.size} fields instead of #{TransactionImport.field_names.size}"
       	return transactions
@@ -94,20 +95,17 @@ class TransactionImport
 
       # look to see if transaction was already imported
       import_id = capture_import_id(row)
-
-      Rails.logger.debug "Processing Import ID -> #{import_id}"
       next if Transaction.find_by_import_id(import_id)
+      Rails.logger.debug "Processing Import ID -> #{import_id}"
 
       # look for transaction with this amount in the given date range
       suspected_dupe = Transaction.find_duplicate_amount_in_range(row["amount"], date, 5).first
-
       Rails.logger.debug "Found suspected duplicate transaction -> #{suspected_dupe.id}" if suspected_dupe
-      Rails.logger.debug "Creating new transaction; Import ID -> #{import_id}"
 
       # create new tx
       tx = Transaction.new
       # for suspected dupes, write the tx id on the new tx so can be verified by user
-      tx.suspected_dupe_id = suspected_dupe.id if suspected_dupe
+      tx.suspected_dupe_id = suspected_dupe.id unless suspected_dupe.nil?
       tx.last_imported = true
       tx.import_id = import_id
       #tx.date_imported = Time.now
@@ -125,7 +123,7 @@ class TransactionImport
       else
       	# create new Item and/or Source?
         tx.item = Item.find_by_name("Unknown")
-        tx.source = strip_source(row["context_key"])
+        tx.source = match_source(row["context_key"])
       end
 
       tx.payment_type = find_payment_type(row["context_key"])
@@ -175,17 +173,18 @@ class TransactionImport
   	end
   end
 
-  def strip_source(val)
+  def match_source(val)
+    #Source.new(name: val, validated: false)
   	Source.name_contains(val.split(/[ \/]/)[0]).first || Source.find_by_name("Unknown")
   end
 
   def capture_import_id(row)
   	if @import_type == "Amex"
   		ref_code = strip_ref_code(row)
-		idx = ref_code.index /[0-9]+/ unless ref_code.nil?
-		ref_code[idx..-1].squish.to_i unless idx.nil?
-	else
-      	(row["balance"].to_f * 100).to_i + date.to_time.to_i
+		  idx = ref_code.index /[0-9]+/ unless ref_code.nil?
+		  ref_code[idx..-1].squish.to_i unless idx.nil?
+	  else
+      (row["balance"].to_f * 100).to_i + Date.strptime(row["date_transacted"], "%m/%d/%Y").to_time.to_i
     end
   end
 end

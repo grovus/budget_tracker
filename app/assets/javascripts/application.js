@@ -11,7 +11,10 @@
 // about supported directives.
 //
 //= require jquery
+//= require jquery.ui.all
 //= require jquery_ujs
+//= require best_in_place
+//= require best_in_place.purr
 //= require bootstrap
 //= require turbolinks
 //= require cocoon
@@ -57,4 +60,32 @@ $(document).ready(function() {
             $(this).fadeToggle();
         })
     });  
+
+    $('.best_in_place')
+      .best_in_place()
+      .bind('ajax:success', function(event, data, status, xhr) {
+
+        $(this).closest('td').effect('bounce');
+
+        console.log(data);
+        //console.log($(this).attr("data-attribute"));
+        //console.log($(this).attr("data-value"));
+
+        var parsed_data = jQuery.parseJSON(data);
+        var id = parsed_data["item_id"];
+
+        if ($(this).attr("data-attribute") == "item_id") { 
+          if (id != "182") {
+            console.log("removing attribute");
+            $(this).closest('td').removeClass("invalid_cell");
+            $(this).closest('td').css("background-color","#2f2").delay(500).animate({backgroundColor: "#fff"}, 1000 );
+          } else {
+            console.log("adding attribute");
+            $(this).closest('td').addClass("invalid_cell");            
+            $(this).closest('td').css("background-color","");
+          }
+        } else {
+          $(this).closest('td').css("background-color","#2f2").delay(500).animate({backgroundColor: "#fff"}, 1000 );
+        }
+    });
 });

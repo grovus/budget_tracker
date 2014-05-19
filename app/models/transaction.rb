@@ -40,15 +40,17 @@ class Transaction < ActiveRecord::Base
   def split
     self[:original_amount] ||= self[:amount] 
     split_transaction = dup
+    split_transaction.context_key = nil # wipe the ctx key so as not to confuse future imports
     split_transaction.parent_id = self[:id]
     split_transaction
   end
 
   def validate_split_amounts(amounts)
-    amounts_sum = amounts.sum(&:to_f) + self[:amount]
+    amounts_sum = amounts.sum(&:to_f)
     if self[:original_amount] != amounts_sum
       Rails.logger.debug amounts
-      errors.add(:amount, "Split amounts (#{number_to_currency(amounts_sum)}) must equal original transaction amount of #{number_to_currency(self[:original_amount])}")
+      errors.add(:amount, 
+        "Split amounts (#{helpers.number_to_currency(amounts_sum)}) must equal original transaction amount of #{helpers.number_to_currency(self[:original_amount])}")
       return false
     elsif amounts.size != amounts.uniq.size
       errors.add(:amount, "Split amounts must be unique")
@@ -57,4 +59,20 @@ class Transaction < ActiveRecord::Base
 
     true
   end
+
+  def items_collection
+    #all_items = item.category.portfolio.items.all
+    #[all_items.collect(&:id), all_items.collect(&:full_name)].transpose
+
+    item.category.portfolio.items.all.map { |i| [i.id, i.full_name] }
+  end
+
+  def source_collection
+    Source.where(portfolio_id: item.category.portfolio_id).order(:name).map{ |s| [s.id, s.name] }
+  end
+
+  def helpers
+    ActionController::Base.helpers
+  end
+
 end

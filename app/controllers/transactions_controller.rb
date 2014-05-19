@@ -44,12 +44,16 @@ class TransactionsController < ApplicationController
   def update
     @portfolio = current_user.portfolio
   	@transaction = Transaction.find(params[:id])
-  	if @transaction.update_attributes(transaction_params)
-  	  flash[:success] = "Transaction updated"
-  	  redirect_to @portfolio and return
-  	end
-  	  
-    render 'edit'
+    respond_to do |format|
+      if @transaction.update_attributes(transaction_params)
+        flash[:success] = "Transaction updated"
+        format.html { redirect_to @portfolio }
+        format.json { render json: @transaction }
+      else
+        format.html { render 'edit' }
+        format.json { respond_with_bip(@transaction) }
+      end  	  
+    end
   end
 
   def edit_multiple
@@ -59,6 +63,10 @@ class TransactionsController < ApplicationController
         flash[:success] = "deleted #{params[:transaction_ids].size} transactions"
         Transaction.destroy(transaction_ids)
         redirect_to :back and return
+      elsif params[:commit].start_with? 'Validate'
+        flash[:success] = "validated #{params[:transaction_ids].size} transactions"
+        Transaction.update_all({ validated: true }, { id: transaction_ids })
+        redirect_to :back and return        
       end
     end
     @portfolio = current_user.portfolio
@@ -104,8 +112,9 @@ class TransactionsController < ApplicationController
       split_count = 0
       splits = params[:transaction][:split_transactions]
       unless splits.nil?
-
-        if !@transaction.validate_split_amounts(splits.values.collect { |val| val[:amount] }) 
+        amounts = splits.values.collect { |val| val[:amount] }
+        amounts << params[:transaction][:amount]
+        if !@transaction.validate_split_amounts(amounts) 
           render 'edit_individual' and return
         end
 
