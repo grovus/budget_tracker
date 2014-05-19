@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140512204306) do
+ActiveRecord::Schema.define(version: 20140519135713) do
 
   create_table "categories", force: true do |t|
     t.string   "name"
@@ -87,6 +87,7 @@ ActiveRecord::Schema.define(version: 20140512204306) do
     t.boolean  "edit_mode",         default: false
     t.float    "original_amount"
     t.integer  "parent_id"
+    t.boolean  "tax_credit"
   end
 
   add_index "transactions", ["context_key"], name: "index_transactions_on_context_key"

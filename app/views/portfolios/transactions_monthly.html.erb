@@ -5,10 +5,10 @@
 <div class="span4">
   <table class="table-nonfluid table-bordered">
     <tr class="invalid_item_row">
-      <td><%= @transactions.group(:validated).having(validated: false).count.values[0] %> not validated</td>
+      <td><%= @transactions.where(validated: false).count %> unreconciled</td>
     </tr>
     <tr class="duplicate_item_row">
-      <td><%= @transactions.group(:suspected_dupe_id).having('suspected_dupe_id > 0').count.values[0] %> suspected duplicates</td>
+      <td><%= @transactions.where('suspected_dupe_id > 0').count %> suspected duplicates</td>
     </tr>
   </table>
 </div>
@@ -26,6 +26,7 @@
       <th><%= sortable "source_id", "Vendor" %></th>
       <th><%= sortable "amount" %></th>
       <th><%= sortable "payment_type_id", "Payment Type" %></th>
+      <th>Tax Credit</th>
       <th>Notes</th>
       <th>Action</th>
     </tr>
@@ -39,6 +40,7 @@
     	<td><%= link_to t.source.name, source_path(t.source_id) %></td>
     	<td class="number_cell"><%= number_to_currency(t.amount) %></td>
       <td><%= link_to t.payment_type.name, payment_type_path(t.payment_type_id) %></td>
+      <td><%= t.tax_credit ? 'Yes' : 'No' %></td>
     	<td><%= t.notes %></td>
       <td><%= link_to "edit", edit_transaction_path(t) %> <%= link_to "delete", t, method: :delete, data: { confirm: "You sure?" } %></td>
     </tr>

@@ -16,6 +16,7 @@
 	<% end %>
 	<%= f.input :amount, input_html: {step: 0.01} %>
 	<%= f.input :payment_type_id, collection: PaymentType.all %>
+	<%= f.input :tax_credit, input_html: {class: 'input-mini'} %>
 	<%= f.input :notes %>
 	<%= f.input :validated, as: :hidden, input_html: { value: 't' } %>	
 	<%= f.input :edit_mode, as: :hidden, input_html: { value: 'f' } %>	

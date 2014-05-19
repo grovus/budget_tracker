@@ -17,6 +17,7 @@
 	  <%= f.date_field(:date_transacted) %>
 	<% end %>
 	<%= f.input :amount, input_html: {step: 0.01} %>
+	<%= f.input :tax_credit, as: :boolean %>
 	<%= f.input :payment_type_id, collection: PaymentType.all %>
 	<%= f.input :notes %>
 </td>

@@ -18,6 +18,7 @@
 	  <%= link_to "Add New", new_category_path, class: "btn btn-medium btn-primary" %>
 	<% end %>
 	<%= f.input :amount, input_html: {step: 0.01} %>
+	<%= f.input :tax_credit %>
 	<%= f.input :notes %>
 
 	<%= f.input :validated, as: :hidden, input_html: { value: 't' } %>	
@@ -41,6 +42,9 @@
 	</td>
 	<td>
 	<%= f.input :amount, input_html: {step: 0.01} %>
+	</td>
+	<td>
+	<%= f.input :tax_credit %>
 	</td>
 	<td>
 	<%= f.input :notes %>

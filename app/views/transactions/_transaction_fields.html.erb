@@ -12,6 +12,9 @@
 	<%= f.input :amount, input_html: {step: 0.01} %>
 	</td>
 	<td>
+	<%= f.input :tax_credit, collection: [['Yes', 't'], ['No', 'f']] %>
+	</td>
+	<td>
 	<%= f.input :notes %>
 	</td>
     

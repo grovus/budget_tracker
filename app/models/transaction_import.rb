@@ -119,6 +119,7 @@ class TransactionImport
       	Rails.logger.debug("Found context match!!! #{match.id}, #{match.item.id}")
         tx.item = match.item
         tx.source = match.source
+        tx.tax_credit = match.tax_credit
         # also copy notes once ref field is added?
       else
       	# create new Item and/or Source?

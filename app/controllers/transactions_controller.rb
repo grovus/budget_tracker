@@ -176,7 +176,7 @@ class TransactionsController < ApplicationController
   private
 
     def transaction_params
-    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes, :validated, :edit_mode, :_destroy)
+    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes, :validated, :edit_mode, :tax_credit, :_destroy)
     end
 
     def contains_unreconciled

@@ -26,6 +26,7 @@
 	  <%= link_to "Add New", new_source_path, class: "btn btn-medium btn-primary", remote: true  %>
 	<% end %>
 	<%= f.input :payment_type_id, collection: PaymentType.all %>
+  <%= f.input :tax_credit, collection: [['Yes', 't'], ['No', 'f']] %>
 	<%= f.input :notes %>
 	<%= f.input :validated, as: :hidden, input_html: { value: 't' } %>
 
