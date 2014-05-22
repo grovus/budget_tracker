@@ -1,0 +1,83 @@
+<h1>Search Transactions</h1>
+
+<div class="separator">
+</div>
+
+<%= form_tag transactions_path, method: :get do %>
+	<p>
+		<span class="span2">Search Field</span>
+		<%= select_tag :field, options_for_select(Transaction.searchable_attributes.map { |name| [name.humanize, name] }, params[:field]) %>
+	</p>
+	<p>
+		<span class="span2">Keyword</span>
+		<%= text_field_tag :keyword, params[:keyword] %>
+	</p>
+	<p>
+		<span class="span2">Date Range</span>
+		<%= date_field_tag :start_date, params[:start_date] || Transaction.earliest.strftime('%Y-%m-%d') %>
+		<span>to</span>
+		<%= date_field_tag :end_date, params[:end_date] || Time.now.strftime('%Y-%m-%d') %>
+	</p>
+	<p>
+		<span class="span2">Amount Range</span>
+		<%= number_field_tag :min_amount, params[:min_amount] %>
+		<span> to </span>
+		<%= number_field_tag :max_amount, params[:max_amount] %>
+	</p>
+
+ 	<%= submit_tag "Search", name: nil, class: "btn btn-large btn-primary" %>
+<% end %>
+
+<div class="separator">
+</div>
+
+<h1>Found <%= pluralize(@transactions.total_entries, 'Transaction') %></h1>
+<h1>Total Spent : <%= number_to_currency(@transactions_sum) %></h1>
+
+<div>
+	<%= will_paginate @transactions %>
+
+	<table class="table table-bordered">
+
+	  <thead>
+	    <tr class="header_row">
+	      <th><%= sortable "date_transacted", "Date" %></th>
+	      <th><%= sortable "item_id", "Category" %></th>
+	      <th><%= sortable "source_id", "Vendor" %></th>
+	      <th><%= sortable "amount" %></th>
+	      <th><%= sortable "payment_type_id", "Payment Type" %></th>
+	      <th>Tax Credit</th>
+	      <th>Notes</th>
+	      <th>Action</th>
+	    </tr>
+	  </thead>
+
+	  <tbody>
+	    <% @transactions.each do |t| %>
+	    <tr class="<%= t.suspected_dupe_id ? 'duplicate_item_row' : t.validated ? 'item_row' : 'invalid_item_row' %>">
+	    	<td><%= link_to t.date_transacted.strftime('%d-%b-%Y'), edit_transaction_path(t) %></td>
+	    	<td><%= link_to t.item.name, item_path(t.item_id) %></td>
+	    	<td><%= link_to t.source.name, source_path(t.source_id) %></td>
+	    	<td class="number_cell"><%= number_to_currency(t.amount) %></td>
+	      <td><%= link_to t.payment_type.name, payment_type_path(t.payment_type_id) %></td>
+	      <td><%= t.tax_credit ? 'Yes' : 'No' %></td>
+	    	<td><%= t.notes %></td>
+	      <td><%= link_to "edit", edit_transaction_path(t) %> <%= link_to "delete", t, method: :delete, data: { confirm: "You sure?" } %></td>
+	    </tr>
+	    <% end %>
+	  </tbody>
+
+	</table>
+
+ 	<div class="digg_pagination">
+    	<div class="page_info">
+      		<%= page_entries_info @transactions %>
+    	</div>
+    	<%= will_paginate @transactions %>
+  	</div>
+</div>
+
+<div>
+Transactions per page <%= select_tag :per_page, options_for_select([10,25,50,100,@transactions.total_entries], params[:per_page].to_i),
+       { onchange: "if(this.value){window.location='?#{request.query_string}&per_page='+this.value;}", class: 'span1' } %>
+</div>

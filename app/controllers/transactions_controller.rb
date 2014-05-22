@@ -153,7 +153,12 @@ class TransactionsController < ApplicationController
 
   def index
     @portfolio = current_user.portfolio
-    @transactions = @portfolio.transactions.all
+    @all_transactions = @portfolio.transactions.field_where(params[:field], params[:keyword])
+    @all_transactions = @all_transactions.between_dates(params[:start_date], params[:end_date])
+    @all_transactions = @all_transactions.between_amounts(params[:min_amount], params[:max_amount])
+
+    @transactions = @all_transactions.paginate(page: params[:page], per_page: params[:per_page])
+    @transactions_sum = @all_transactions.sum(:amount)
   end
 
   def import

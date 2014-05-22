@@ -13,8 +13,23 @@ class Transaction < ActiveRecord::Base
   validates :source_id, presence: true
   validates :payment_type_id, presence: true
 
+  scope :earliest, -> { minimum(:date_transacted) }
+
+  scope :between_dates, -> (start_date, end_date) {
+    start_date = earliest if start_date.blank?
+    end_date = Time.now if end_date.blank?
+    where(date_transacted: start_date..end_date)
+  }
+
+  scope :between_amounts, -> (min_amount, max_amount) {
+    max_amount = maximum(:amount) if max_amount.blank?
+    where(amount: min_amount.to_i..max_amount.to_i)
+  }
+
   scope :find_duplicate_amount_in_range, ->(amount, date, range) { 
-    where('amount = ? AND date_transacted BETWEEN ? AND ?', amount, date - range.days, date + range.days) }
+    #where('amount = ? AND date_transacted BETWEEN ? AND ?', amount, date - range.days, date + range.days) 
+    between_dates(date - range.days, date + range.days).where('amount = ?', amount) 
+  }
 
   def self.full_select()
     select( "transactions.*, items.name as item_name, categories.name as category_name")
@@ -73,6 +88,24 @@ class Transaction < ActiveRecord::Base
 
   def helpers
     ActionController::Base.helpers
+  end
+
+  def self.searchable_attributes
+    column_names & ["notes", "ref_code", "item_id", "source_id", "payment_type_id"]
+  end
+
+  def self.field_where(field, keyword)
+    scope = self
+    if searchable_attributes.include? field
+      if field.ends_with? "_id"
+        assoc = field.split("_id")[0] 
+        names = self.reflect_on_association(assoc.to_sym).klass.column_names & ["name"]
+        field = assoc.pluralize + '.' + names[0] if names
+        scope = scope.includes(assoc.to_sym).references(assoc.to_sym)
+      end
+      scope = scope.where("#{field} LIKE ?", "%#{keyword}%")
+    end
+    scope
   end
 
 end
