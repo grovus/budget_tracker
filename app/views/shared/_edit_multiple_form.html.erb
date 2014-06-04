@@ -9,7 +9,8 @@
       <th><%= sortable "item_id", "Category" %></th>
       <th><%= sortable "source_id", "Vendor" %></th>
       <th><%= sortable "amount" %></th>
-      <th><%= sortable "payment_type_id", "Payment Type" %></th>
+      <th><%= sortable "payment_type_id", "Payment" %></th>
+      <th>Ignore?</th>
       <th>Tax Credit</th>
       <th>Notes</th>
       <th>Reconciled</th>
@@ -17,20 +18,26 @@
   </thead>
 
   <tbody>
+    
+    <% @items = Transaction.itemz_collection(current_user) %>
+    <% @sources = Transaction.sourcez_collection(current_user) %>
+    <% @payment_types = PaymentType.all.map { |pt| [pt.id, pt.name] } %>
+
     <% @transactions.each do |t| %>
     <tr class="item_row">
     	<td><%= check_box_tag "transaction_ids[]", t.id, false, class: 'transaction_checkboxes' %></td>
     	<td><%= link_to t.date_transacted.strftime('%d-%b-%Y'), edit_transaction_path(t) %></td>
     	<td class="<%= 'invalid_cell' if t.item.name == 'Unknown' %>">
-        <%= best_in_place t, :item_id, type: :select, collection: t.items_collection %></td>
+        <%= best_in_place t, :item_id, type: :select, collection: @items, inner_class: 'span3' %>
+      </td>
     	<td class="<%= 'invalid_cell' if t.source.name == 'Unknown' %>">
-        <%= best_in_place t, :source_id, type: :select, 
-          collection: Source.where(portfolio_id: t.item.category.portfolio_id).order(:name).map{ |s| [s.id, s.name] } %>
+        <%= best_in_place t, :source_id, type: :select, collection: @sources, inner_class: 'span2' %>
       </td>
     	<td class="number_cell"><%= number_to_currency(t.amount) %></td>
-      <td><%= best_in_place t, :payment_type_id, type: :select, collection: PaymentType.all.map { |pt| [pt.id, pt.name] } %></td>
+      <td><%= best_in_place t, :payment_type_id, type: :select, collection: @payment_types, inner_class: 'span2' %></td>
+      <td><%= best_in_place t, :blacklisted, type: :checkbox %></td>
       <td><%= best_in_place t, :tax_credit, type: :checkbox %></td>
-    	<td><%= best_in_place t, :notes, data: t.notes %></td>
+    	<td><%= best_in_place t, :notes, data: t.notes, inner_class: 'span3' %></td>
     	<td class="<%= t.validated ? 'valid_cell' : 'invalid_cell' %>"><%= t.validated %></td>
     </tr>
     
@@ -43,6 +50,7 @@
       <td class="<%= 'invalid_cell' if dup.source.name == 'Unknown' %>"><%= dup.source.name %></td>
       <td class="number_cell"><%= number_to_currency(dup.amount) %></td>
       <td><%= dup.payment_type.name %></td>
+      <td><%= dup.blacklisted ? 'Yes' : 'No' %></td>
       <td><%= dup.tax_credit ? 'Yes' : 'No' %></td>
       <td><%= dup.notes %></td>
       <td class="<%= dup.validated ? 'valid_cell' : 'invalid_cell' %>"><%= dup.validated %></td>

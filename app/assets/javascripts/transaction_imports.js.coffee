@@ -9,7 +9,7 @@ $(document).ready ->
     console.log(len)
     $('input[value="Edit Checked"]').prop('disabled', len == 0)
     $('input[value="Delete Checked"]').prop('disabled', len == 0)
-    $('input[value="Validate Checked"]').prop('disabled', len == 0)
+    $('input[value="Reconcile Checked"]').prop('disabled', len == 0)
 
   numChecked()
 

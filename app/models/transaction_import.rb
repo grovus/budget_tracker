@@ -2,14 +2,16 @@ class TransactionImport
   include ActiveModel::Model
 
   attr_accessor :file_name
+  #TODO : make import_type a model with attributes for default_payment_type, banking vs credit card etc.
   attr_accessor :import_type
 
   validates :file_name,  presence: true
+  validates :import_type, presence: true
 
   def self.fields_amex
   	[	{ name: 'date_transacted', type: 'date'}, 
   		{ name: 'transaction_ref', type: 'string'},
-  		{ name: 'amount', type: 'number'},
+  		{ name: 'debit', type: 'number'},
   		{ name: 'context_key', type: 'string'},
   		{ name: 'unused_1', type: 'string'},
   		{ name: 'unused_2', type: 'string'}
@@ -19,8 +21,8 @@ class TransactionImport
   def self.fields_td
   	[	{ name: 'date_transacted', type: 'date'}, 
   		{ name: 'context_key', type: 'string'},
-  		{ name: 'amount', type: 'number'},
   		{ name: 'debit', type: 'number'},
+  		{ name: 'credit', type: 'number'},
   		{ name: 'balance', type: 'number'}
   	]
   end
@@ -50,6 +52,14 @@ class TransactionImport
   	fields.map { |val| val[:name] }
   end
 
+  def self.import_types
+     ["TD Chequing", "TD Visa", "Amex"]
+  end
+
+  def self.import_type_defaults
+    { "Amex" => "Amex", "TD Visa" => "Visa", "TD Chequing" => "PAC"}
+  end
+
   def initialize(attributes = {})
     attributes.each { |name, value| send("#{name}=", value) }
   end
@@ -58,8 +68,12 @@ class TransactionImport
     false
   end
 
+  def banking?
+    @import_type == "TD Chequing"
+  end
+
   def save
-  	if imported_transactions.size > 0 && imported_transactions.map(&:valid?).all?
+  	if valid? && imported_transactions.size > 0 && imported_transactions.map(&:valid?).all?
   		imported_transactions.each(&:save!)
   		true
   	else
@@ -73,23 +87,24 @@ class TransactionImport
   end
 
   def imported_transactions
-  	@imported_transactions ||= import
+  	@imported_transactions ||= (import || [])
   end
 
   def import
-    # add logic to determine what type of import this is
+    return if !valid?
     transactions = []
-
-    CSV.foreach(@file_name.path) do |line|
-      
+    CSV.foreach(@file_name.path) do |line|      
       if line.size != field_names.size
-      	errors.add :base, "Incorrect file format. Found #{line.size} fields instead of #{TransactionImport.field_names.size}"
-      	return transactions
+      	errors.add :base, 
+          "Incorrect file format. Found #{line.size} fields instead of #{TransactionImport.field_names.size}. #{line}..."
+        return
       end
 
       row = Hash[[field_names, line].transpose]
-      # skip for credit line items 
-      next unless row["amount"] && !(row["amount"].starts_with? '-')
+
+      # check for credit line items
+      amount = row["debit"] || row["credit"] 
+      #next unless row["amount"] && !(row["amount"].starts_with? '-')
       
       date = Date.strptime(row["date_transacted"], "%m/%d/%Y")
 
@@ -108,30 +123,37 @@ class TransactionImport
       tx.suspected_dupe_id = suspected_dupe.id unless suspected_dupe.nil?
       tx.last_imported = true
       tx.import_id = import_id
-      #tx.date_imported = Time.now
       tx.date_transacted = date
-      tx.amount = row["amount"]
-      tx.original_amount = tx.amount
+
+      tx.income = row["debit"].nil? && banking?
+      tx.credit = !tx.income && (row["debit"].nil? || row["debit"].starts_with?('-'))
+      amount = -amount if tx.credit && amount > 0
+
+      tx.amount = amount
+      tx.original_amount = amount
+      tx.notes = row["context_key"].squish
+      tx.payment_type = find_payment_type(row["context_key"])
+      tx.ref_code = strip_ref_code(row)
+      tx.context_key = sanitize_context_key(row["context_key"])
     
       # look for matching tx with same context key and copy source/category
-      match = Transaction.find_by_context_key(row["context_key"])
+      Rails.logger.debug "Looking for context '#{row["context_key"]}'"
+      match = Transaction.find_by_context_key(tx.context_key)
       if match 
       	Rails.logger.debug("Found context match!!! #{match.id}, #{match.item.id}")
         tx.item = match.item
         tx.source = match.source
         tx.tax_credit = match.tax_credit
-        # also copy notes once ref field is added?
+        tx.blacklisted = match.blacklisted
+        # copy notes if amounts are the same as it's likely a recurring expense
+        tx.notes = match.notes if tx.amount == match.amount
       else
+        Rails.logger.debug "No match found #{match}"
       	# create new Item and/or Source?
         tx.item = Item.find_by_name("Unknown")
         tx.source = match_source(row["context_key"])
       end
-
-      tx.payment_type = find_payment_type(row["context_key"])
-      tx.notes = row["context_key"].squish
-      tx.context_key = sanitize_context_key(row["context_key"])
-      tx.ref_code = strip_ref_code(row)
-      
+            
       tx.validated = false
       
       Rails.logger.debug(row)
@@ -149,12 +171,14 @@ class TransactionImport
   		PaymentType.find_by_name("Transfer")
   	elsif val.include? "W/D"
   		PaymentType.find_by_name("Cash")
+    elsif val.ends_with? "PAY"
+      PaymentType.find_by_name("Pay")
   	elsif val.index /([A-Z][\d]){3}$/
   		PaymentType.find_by_name("DirectPayment")
   	# could have another for Interac but difficult to determine
-  	# basically, the only pattern is that 'val' might contain a vendor
+  	# basically, the only pattern is that 'val' *might* contain a vendor
   	else
-  		PaymentType.find_by_name(import_type)
+  		PaymentType.find_by_name(TransactionImport.import_type_defaults[import_type])
   	end
   end
 

@@ -14,9 +14,9 @@
               </a>
               <ul class="dropdown-menu">
                 <% if current_user.portfolio && !current_user.portfolio.id.blank? && !current_user.portfolio.name.blank? %>
-                  <li><%= link_to "Import", new_transaction_import_path %></li>
                   <li><%= link_to "Add New", new_transaction_path, remote: true %></li>
-                  <li><%= link_to "Search", transactions_path %></li>
+                  <li><%= link_to "Import", new_transaction_import_path %></li>
+                  <li><%= link_to "Search", transactions_path() %></li>
                   <li class="divider"></li>
                   <li><%= link_to "Show Imported", transaction_imports_path %></li>
                   <li><%= link_to "Show Unreconciled", unreconciled_transactions_path %></li>

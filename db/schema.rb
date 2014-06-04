@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140519135713) do
+ActiveRecord::Schema.define(version: 20140530222952) do
 
   create_table "categories", force: true do |t|
     t.string   "name"
@@ -88,8 +88,10 @@ ActiveRecord::Schema.define(version: 20140519135713) do
     t.float    "original_amount"
     t.integer  "parent_id"
     t.boolean  "tax_credit"
+    t.boolean  "blacklisted"
   end
 
+  add_index "transactions", ["blacklisted"], name: "index_transactions_on_blacklisted"
   add_index "transactions", ["context_key"], name: "index_transactions_on_context_key"
   add_index "transactions", ["date_transacted", "amount", "item_id", "source_id", "payment_type_id", "import_id"], name: "transactions_index", unique: true
   add_index "transactions", ["edit_mode"], name: "index_transactions_on_edit_mode"

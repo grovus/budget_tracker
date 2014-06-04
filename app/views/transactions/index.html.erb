@@ -11,6 +11,8 @@
 	<p>
 		<span class="span2">Keyword</span>
 		<%= text_field_tag :keyword, params[:keyword] %>
+		<%= check_box_tag :exact_match, true, params[:exact_match] %>
+		<span>Match Exactly?</span>
 	</p>
 	<p>
 		<span class="span2">Date Range</span>

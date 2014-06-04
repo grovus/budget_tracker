@@ -67,25 +67,32 @@ $(document).ready(function() {
 
         $(this).closest('td').effect('bounce');
 
-        console.log(data);
-        //console.log($(this).attr("data-attribute"));
-        //console.log($(this).attr("data-value"));
+        var unknown = false;
+        var attr = $(this).attr("data-attribute");
+        if ( attr == "item_id" || attr == "source_id" ) { 
+          var parsed_data = jQuery.parseJSON(data);
+          console.log(parsed_data);
+          var id = parsed_data[attr];
+          unknown = (id == "182" || id == "39")
+        }
 
-        var parsed_data = jQuery.parseJSON(data);
-        var id = parsed_data["item_id"];
-
-        if ($(this).attr("data-attribute") == "item_id") { 
-          if (id != "182") {
+        if ( unknown ) {
+            console.log("adding attribute");
+            $(this).closest('td').addClass("invalid_cell");            
+            $(this).closest('td').css("background-color", '');
+        } else {
             console.log("removing attribute");
             $(this).closest('td').removeClass("invalid_cell");
             $(this).closest('td').css("background-color","#2f2").delay(500).animate({backgroundColor: "#fff"}, 1000 );
-          } else {
-            console.log("adding attribute");
-            $(this).closest('td').addClass("invalid_cell");            
-            $(this).closest('td').css("background-color","");
-          }
-        } else {
-          $(this).closest('td').css("background-color","#2f2").delay(500).animate({backgroundColor: "#fff"}, 1000 );
+        }
+    });
+
+    $('.best_in_place')
+      .best_in_place()
+      .bind('best_in_place:activate', function(event, data, status, xhr) {
+        console.log(data);
+        if ( $(this).attr("data-type") !== "checkbox" ) {
+          $(this).closest('td').effect('highlight');
         }
     });
 });

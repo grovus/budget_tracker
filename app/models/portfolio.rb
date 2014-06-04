@@ -1,11 +1,11 @@
 class Portfolio < ActiveRecord::Base
   belongs_to :user
-  has_many :categories, order: :name
-  has_many :items, through: :categories, uniq: true, autosave: false
-  has_many :transactions, through: :items, order: :date_transacted, autosave: false
-  #has_many :transactions, order: :date_transacted
-  has_many :sources, uniq: true, order: :name
+  has_many :categories, -> { order :name }
+  has_many :items, -> { uniq }, through: :categories, autosave: false
+  has_many :transactions, -> { order :date_transacted }, through: :items, autosave: false
+  has_many :sources, -> { order(:name).uniq }
   
+  accepts_nested_attributes_for :sources, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :categories, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :items, allow_destroy: true, reject_if: :all_blank
   accepts_nested_attributes_for :transactions, allow_destroy: true, reject_if: :all_blank

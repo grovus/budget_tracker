@@ -37,9 +37,10 @@ class Category < ActiveRecord::Base
   end
 
   def unique_per_portfolio?
-  	portfolio = Portfolio.find(self.portfolio_id)
-  	category = portfolio.categories.all(conditions: ["name = ?", self.name])
-
-		self.errors.add(:name, "Category name should be unique") if category.size > 0
+  	#portfolio = Portfolio.find(self.portfolio_id)
+  	#category = portfolio.categories.all(conditions: ["name = ?", self.name])
+    
+    categories = Category.where(portfolio_id: self.portfolio_id, name: self.name)
+		self.errors.add(:name, "Category name should be unique") if categories.size > 0
   end
 end

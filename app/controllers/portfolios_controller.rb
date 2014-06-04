@@ -72,7 +72,7 @@ class PortfoliosController < ApplicationController
 
     Rails.logger.debug "-------------------> GROUPING CATEGORIES <--------------------"
 
-    current_transactions = @portfolio.transactions.full_select.for_year(@year)
+    current_transactions = @portfolio.transactions.full_select.expenses.for_year(@year)
 
     #TODO: sort hash keys by some ordinal as selected by user (ie. rank categories/items)
 #    grouped_categories = @portfolio.transactions.full_select.for_year(@year).group_by { |t| t.item.category }

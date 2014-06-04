@@ -13,6 +13,14 @@ class Transaction < ActiveRecord::Base
   validates :source_id, presence: true
   validates :payment_type_id, presence: true
 
+  #default_scope { where(blacklisted: true) }
+
+  scope :expenses, -> { where(income: false) }
+  # TODO: refactor Category to add expense field to differentiate b/w income/expense categories
+  #scope :expenses, -> { joins({item: :category}).where(categories: { expense: true }) }
+
+  scope :income, -> { where(income: true) }
+
   scope :earliest, -> { minimum(:date_transacted) }
 
   scope :between_dates, -> (start_date, end_date) {
@@ -26,13 +34,14 @@ class Transaction < ActiveRecord::Base
     where(amount: min_amount.to_i..max_amount.to_i)
   }
 
-  scope :find_duplicate_amount_in_range, ->(amount, date, range) { 
-    #where('amount = ? AND date_transacted BETWEEN ? AND ?', amount, date - range.days, date + range.days) 
-    between_dates(date - range.days, date + range.days).where('amount = ?', amount) 
+  scope :find_duplicate_amount_in_range, ->(amount, date, range) {
+    constraint = arel_table[:amount].eq(amount).or(arel_table[:original_amount].eq(amount)) 
+    between_dates(date - range.days, date + range.days).where(constraint) 
+    #between_dates(date - range.days, date + range.days).where('amount = ? OR original_amount = ?', amount, amount) 
   }
 
   def self.full_select()
-    select( "transactions.*, items.name as item_name, categories.name as category_name")
+    select( "transactions.*, items.name as item_name, categories.name as category_name, sources.name as source_name").joins({item: :category}, :source)
   end
 
   def self.for_year(year)
@@ -75,11 +84,16 @@ class Transaction < ActiveRecord::Base
     true
   end
 
-  def items_collection
-    #all_items = item.category.portfolio.items.all
-    #[all_items.collect(&:id), all_items.collect(&:full_name)].transpose
+  def self.itemz_collection(user)
+    Item.includes(:category).where(categories: {portfolio_id: user.portfolio.id}).order('categories.name').map{ |i| [i.id, i.full_name] }
+  end
 
-    item.category.portfolio.items.all.map { |i| [i.id, i.full_name] }
+  def items_collection
+    Item.includes(:category).where(categories: {portfolio_id: item.category.portfolio_id}).map{ |i| [i.id, i.full_name] }
+  end
+
+  def self.sourcez_collection(user)
+    Source.where(portfolio_id: user.portfolio.id).order(:name).map{ |s| [s.id, s.name] }
   end
 
   def source_collection
@@ -91,21 +105,49 @@ class Transaction < ActiveRecord::Base
   end
 
   def self.searchable_attributes
-    column_names & ["notes", "ref_code", "item_id", "source_id", "payment_type_id"]
+    column_names & ["notes", "ref_code", "item_id", "source_id", "payment_type_id", "tax_credit", "income", "blacklisted"]
   end
 
-  def self.field_where(field, keyword)
+  def self.field_where(field, keyword, match_like)
+    scope = self
+    table = self.arel_table
+    if searchable_attributes.include? field
+      if field.ends_with? "_id"
+        assoc = field.split("_id")[0]
+        table = assoc.classify.constantize.arel_table
+
+        names = self.reflect_on_association(assoc.to_sym).klass.column_names & ['name']
+        field = names[0] if names
+        scope = scope.joins(assoc.to_sym)
+      end
+      scope = scope.where(table[field.to_sym].matches( match_like ? "%#{keyword}%" : "#{keyword}" ))
+    end
+    scope
+  end
+
+  def self.fieldz_where(field, keyword)
     scope = self
     if searchable_attributes.include? field
       if field.ends_with? "_id"
         assoc = field.split("_id")[0] 
         names = self.reflect_on_association(assoc.to_sym).klass.column_names & ["name"]
         field = assoc.pluralize + '.' + names[0] if names
-        scope = scope.includes(assoc.to_sym).references(assoc.to_sym)
+        scope = scope.joins(assoc.to_sym)
       end
       scope = scope.where("#{field} LIKE ?", "%#{keyword}%")
     end
     scope
   end
+
+  #def destroy
+    #imported transactions are blacklisted instead of destroyed
+  #  if self.import_id && self.context_key
+  #    Rails.logger.debug("Blacklisting #{self.context_key}")
+  #    self.blacklisted = true
+  #    self.save
+  #  else
+  #    super
+  #  end
+  #end
 
 end

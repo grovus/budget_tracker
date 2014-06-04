@@ -11,13 +11,17 @@
   <% end %>
 </ul>
 
+<div class="separator"></div>
+
 <%= simple_form_for @transaction_import do |f| %>
   <% if @transaction_import.errors.any? %>
     <div id="error_explanation">
-      <h2><%= pluralize(@transaction_import.errors.count, "error") %> prohibited this import from completing:</h2>
+      <div class="alert alert-error">
+        <%= pluralize(@transaction_import.errors.count, "error") %> prohibited this import from completing:
+      </div>
       <ul>
       <% @transaction_import.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
+        <li>* <%= msg %></li>
       <% end %>
       </ul>
     </div>
@@ -32,7 +36,7 @@
         <a id="upload-btn" class="btn btn-primary">Select File</a>
         <%= f.submit "Import", class: "btn btn-primary" %>
       </div>
-      <%= f.input :import_type, collection: [['Chequing', 'PAC'], ['Visa', 'Visa'],['Amex', 'Amex']] %>       
+      <%= f.input :import_type, collection: TransactionImport.import_types, include_blank: true %>       
     </div>
   </div>
 <% end %>

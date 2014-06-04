@@ -1,10 +1,9 @@
 class TransactionImportsController < ApplicationController
 
-	before_action :check_file, only: :create
+  before_action :check_params, only: :create
 
 	def new
   	@transaction_import = TransactionImport.new
-  	#@transaction_import.errors.add :base, "Please select a file"
 	end
 
 	def create
@@ -14,11 +13,9 @@ class TransactionImportsController < ApplicationController
   	@transaction_import = TransactionImport.new(params[:transaction_import])
   	if @transaction_import.save
   		@transactions = @transaction_import.imported_transactions
-  		#current_user.portfolio.transactions.update_all(last_imported: false)
-    		render :imported, 
-    			notice: "Imported #{@transaction_import.imported_transactions.size} transactions successfully."
+    	render :imported, notice: "Imported #{@transaction_import.imported_transactions.size} transactions successfully."
   	else
-    		render :new
+    	render :new
   	end
 	end
 
@@ -26,15 +23,15 @@ class TransactionImportsController < ApplicationController
 	end
 
 	def index
-		@transactions = Transaction.where(last_imported: true)
+    @transactions = current_user.portfolio.transactions.full_select.where(last_imported: true)
 		render :imported
 	end
 
   	private
 
-  		def check_file
-  			redirect_to new_transaction_import_url(), flash: { error: "Please select a file" } if params[:transaction_import].nil?
-#  			redirect_to new_transaction_import_url() if params[:transaction_import].nil?
-  		end
+  		def check_params
+  			#redirect_to new_transaction_import_url(), flash: { error: "Please select a file" } and return if params[:transaction_import][:file_name].blank?
+        #redirect_to new_transaction_import_url(), flash: { error: "Please select an import type" } and return if params[:transaction_import][:import_type].blank?
+      end
 
 end

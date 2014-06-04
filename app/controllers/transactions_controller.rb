@@ -1,4 +1,5 @@
 class TransactionsController < ApplicationController
+
   def new
     @portfolio = current_user.portfolio
   	@transaction = Transaction.new
@@ -63,8 +64,8 @@ class TransactionsController < ApplicationController
         flash[:success] = "deleted #{params[:transaction_ids].size} transactions"
         Transaction.destroy(transaction_ids)
         redirect_to :back and return
-      elsif params[:commit].start_with? 'Validate'
-        flash[:success] = "validated #{params[:transaction_ids].size} transactions"
+      elsif params[:commit].start_with? 'Reconcile'
+        flash[:success] = "reconciled #{params[:transaction_ids].size} transactions"
         Transaction.update_all({ validated: true }, { id: transaction_ids })
         redirect_to :back and return        
       end
@@ -153,7 +154,7 @@ class TransactionsController < ApplicationController
 
   def index
     @portfolio = current_user.portfolio
-    @all_transactions = @portfolio.transactions.field_where(params[:field], params[:keyword])
+    @all_transactions = @portfolio.transactions.field_where(params[:field], params[:keyword], params[:exact_match].blank?)
     @all_transactions = @all_transactions.between_dates(params[:start_date], params[:end_date])
     @all_transactions = @all_transactions.between_amounts(params[:min_amount], params[:max_amount])
 
@@ -181,7 +182,7 @@ class TransactionsController < ApplicationController
   private
 
     def transaction_params
-    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes, :validated, :edit_mode, :tax_credit, :_destroy)
+    	params.require(:transaction).permit(:amount, :item_id, :source_id, :payment_type_id, :date_transacted, :income, :recurring, :notes, :validated, :edit_mode, :tax_credit, :blacklisted, :_destroy)
     end
 
     def contains_unreconciled
